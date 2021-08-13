@@ -1,0 +1,119 @@
+* Inspiring Adversary
+** github.com/paroj/teatime
+** regularbreaks.com
+** pomofocus.io
+* Same Name
+** play.google.com/store/apps/details?id=com.hexgecko.breakreminder
+** apps.apple.com/us/app/take-a-break-meditations-for-stress-relief/id453857236
+* Requirements
+** A list of timers
+** Each timer
+- name, duration,
+- sound and message in notification (alert box)
+- how many times to give alert/ring
+- alert interval
+- sound repetition, message display duration (alert duration)
+- pause, stop, reset, restart, continue
+- individual message and sound for each reminder
+- move up, move down timers/reminders
+- time up, notify and start next timer immediately
+- click to auto start next timer (2 buttons: click to stop, click to stop and start the next one)
+- Choose only ring or notification
+  + Browser enable/disable notification
+  + Browser enable/disable sound
+- UI to enable/disable notification and sound?
+  + Option to choose No sound
+  + Set 0 to display duration
+** No sign up required
+** Save app data in web storage, use web worker so work offline
+** clear data, reset to defaults
+** remove timers, rearrange timers
+** statistics
+** export and import
+* POC
+** domain name
+- takeabreak.cc
+** consistent in name
+- TakeaBreak
+- TakeABreak
+- Take a Break <- choose this one
+- Take A Break
+- takeabreak
+- take-a-break
+** font
+- Inter
+** supported screens
+- 1 screen?
+** play sounds
+- const audioObj = new Audio(url); // so url is pointed to s3 public folder
+- 
+** send notifications
+- const notification = new Notification(title, options);
+** timer
+- loop? animationLoop? setTimeOut?
+** Flow
+*** Add, edit timers
+*** Start, pause, stop, continue, reset
+*** Export, import, delete all
+* Design
+** 4 states
+- Init, Running, Paused, TimedUp
+** React components
+- Main
+- Hero
+- Feature
+- SupportUs
+- Footer
+- TopBarMenuPoup
+- TimerList
+- TimerItem
+- TimerItemMenuPopup
+- EditorPopup
+- EditorReminder
+- EditorReminderMenuPopup
+- EditorReminderSoundMenuPopup
+- EditorNextTimerMenuPopup
+- EditorNextTimerStartsByMenuPopup
+** Redux reducers
+- timersReducer
+  {
+    byId: {
+      't12819281912': {
+        
+        reminders: ['', '', ...],
+      },
+    },
+    allIds: ['', '', ...],
+  }
+- timerRemindersReducer
+  {
+    byId: {
+
+    },
+  }
+- displayReducer
+  {
+    runningTimerId: null,
+    runningStartTime: null,
+    runningFlag: null | PAUSED | TIMED_UP,
+    
+  }
+- editorReducer
+- editorRemindersReducer
+* Implementation
+** Articles
+- www.bbc.com/worklife/article/20190312-the-tiny-breaks-that-ease-your-body-and-reboot-your-brain
+- thewellbeingthesis.org.uk/foundations-for-success/importance-of-taking-breaks-and-having-other-interests/
+- en.wikipedia.org/wiki/Pomodoro_Technique
+** Images
+- www.pikrepo.com/fcqkf/woman-drinking-hot-tea-in-her-home-office
+** Web client
+- npx create-react-app takeabreak --template cra-template-pwa
+- yarn add tailwindcss postcss postcss-cli autoprefixer
+- yarn add @tailwindcss/forms @tailwindcss/typography @tailwindcss/aspect-ratio @tailwindcss/line-clamp
+- yarn add redux react-redux redux-loop redux-persist reselect
+- yarn add framer-motion
+** Server
+*** s3
+*** cloudfront
+*** asw-cli

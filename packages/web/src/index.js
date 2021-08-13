@@ -1,13 +1,34 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import { Provider } from 'react-redux';
+import { createStore, compose } from 'redux';
+import { install as installReduxLoop } from 'redux-loop';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+
+import './stylesheets/tailwind.css';
+
+import reducers from './reducers';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 
+import App from './components/App';
+
+const persistConfig = { key: 'root', storage };
+/** @ts-ignore */
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const store = createStore(
+  persistReducer(persistConfig, reducers),
+  composeEnhancers(
+    installReduxLoop({ ENABLE_THUNK_MIGRATION: true }),
+  )
+);
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );
