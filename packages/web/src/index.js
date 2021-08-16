@@ -1,10 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { createStore, compose } from 'redux';
+import { applyMiddleware, createStore, compose } from 'redux';
 import { install as installReduxLoop } from 'redux-loop';
-import { persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+import { save as saveRedux } from "redux-localstorage-simple";
 
 import './stylesheets/tailwind.css';
 
@@ -14,13 +13,12 @@ import reportWebVitals from './reportWebVitals';
 
 import App from './components/App';
 
-const persistConfig = { key: 'root', storage };
 /** @ts-ignore */
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
-  persistReducer(persistConfig, reducers),
+  /** @type {any} */(reducers),
   composeEnhancers(
-    installReduxLoop({ ENABLE_THUNK_MIGRATION: true }),
+    installReduxLoop({ ENABLE_THUNK_MIGRATION: true }), applyMiddleware(saveRedux()),
   )
 );
 

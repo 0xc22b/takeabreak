@@ -111,8 +111,9 @@
 - npx create-react-app takeabreak --template cra-template-pwa
 - yarn add tailwindcss postcss postcss-cli autoprefixer
 - yarn add @tailwindcss/forms @tailwindcss/typography @tailwindcss/aspect-ratio @tailwindcss/line-clamp
-- yarn add redux react-redux redux-loop redux-persist reselect
+- yarn add redux react-redux redux-loop redux-localstorage-simple reselect
 - yarn add framer-motion
+- yarn add url-parse
 ** Server
 *** s3
 *** cloudfront
