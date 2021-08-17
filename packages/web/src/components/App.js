@@ -3,6 +3,8 @@ import { useDispatch } from 'react-redux';
 
 import { init } from '../actions';
 
+import Main from './Main';
+
 const App = () => {
 
   const dispatch = useDispatch();
@@ -11,7 +13,7 @@ const App = () => {
     dispatch(init());
   }, [dispatch]);
 
-  return <div>This is a React component.</div>;
+  return <Main />;
 };
 
 export default React.memo(App);

@@ -1,8 +1,11 @@
 import { load as loadRedux } from "redux-localstorage-simple";
 import Url from 'url-parse';
 
-import { INIT, UPDATE_WINDOW_SIZE } from '../types/actionTypes';
-import { throttle } from '../utils';
+import { INIT, UPDATE_WINDOW_SIZE, UPDATE_POPUP } from '../types/actionTypes';
+import {
+  EDITOR_POPUP, CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP,
+} from '../types/const';
+import { throttle, urlHashToObj, objToUrlHash } from '../utils';
 
 export const init = () => async (dispatch, getState) => {
 
@@ -50,4 +53,140 @@ export const handleUrlHash = () => {
 
 export const onUrlHashChange = (oldUrl, newUrl, dispatch, getState) => {
 
+  const oldUrlObj = new Url(oldUrl, {});
+  const oldHashObj = urlHashToObj(oldUrlObj.hash);
+
+  const newUrlObj = new Url(newUrl, {});
+  const newHashObj = urlHashToObj(newUrlObj.hash);
+
+  // Popup
+  if ('p' in oldHashObj && 'p' in newHashObj) {
+    if (oldHashObj['p'] === newHashObj['p']) {
+      // something else changed, do nothing here.
+    } else {
+      // i.e. from profilePopup to settingsPopup
+      dispatch(updatePopup(oldHashObj['p'], false, null));
+
+      let anchorPosition = null;
+      if (newHashObj['ppt']) anchorPosition = {
+        x: parseInt(newHashObj['ppx']),
+        y: parseInt(newHashObj['ppy']),
+        width: parseInt(newHashObj['ppw']),
+        height: parseInt(newHashObj['pph']),
+        top: parseInt(newHashObj['ppt']),
+        right: parseInt(newHashObj['ppr']),
+        bottom: parseInt(newHashObj['ppb']),
+        left: parseInt(newHashObj['ppl']),
+      }
+      dispatch(updatePopup(newHashObj['p'], true, anchorPosition));
+    }
+  } else if ('p' in oldHashObj && !('p' in newHashObj)) {
+    // Close popup
+    dispatch(updatePopup(oldHashObj['p'], false, null));
+  } else if (!('p' in oldHashObj) && 'p' in newHashObj) {
+    // Open popup
+    let anchorPosition = null;
+    if (newHashObj['ppt']) anchorPosition = {
+      x: parseInt(newHashObj['ppx']),
+      y: parseInt(newHashObj['ppy']),
+      width: parseInt(newHashObj['ppw']),
+      height: parseInt(newHashObj['pph']),
+      top: parseInt(newHashObj['ppt']),
+      right: parseInt(newHashObj['ppr']),
+      bottom: parseInt(newHashObj['ppb']),
+      left: parseInt(newHashObj['ppl']),
+    }
+    dispatch(updatePopup(newHashObj['p'], true, anchorPosition));
+  }
+
+  // editor popup
+  if ('ep' in oldHashObj && 'ep' in newHashObj) {
+    if (oldHashObj['ep'] === newHashObj['ep']) {
+      // something else changed, do nothing here.
+    } else {
+      throw new Error(`Shouldn't reach here!`);
+    }
+  } else if ('ep' in oldHashObj && !('ep' in newHashObj)) {
+    // Close editor popup
+    dispatch(updatePopup(EDITOR_POPUP, false, null));
+  } else if (!('ep' in oldHashObj) && 'ep' in newHashObj) {
+    // Open editor popup
+    dispatch(updatePopup(EDITOR_POPUP, true, null));
+  }
+
+  // confirm delete popup
+  if ('cdp' in oldHashObj && 'cdp' in newHashObj) {
+    if (oldHashObj['cdp'] === newHashObj['cdp']) {
+      // something else changed, do nothing here.
+    } else {
+      throw new Error(`Shouldn't reach here!`);
+    }
+  } else if ('cdp' in oldHashObj && !('cdp' in newHashObj)) {
+    // Close confirm delete popup
+    dispatch(updatePopup(CONFIRM_DELETE_POPUP, false, null));
+  } else if (!('cdp' in oldHashObj) && 'cdp' in newHashObj) {
+    // Open confirm delete popup
+    dispatch(updatePopup(CONFIRM_DELETE_POPUP, true, null));
+  }
+
+  // confirm discard popup
+  if ('cdip' in oldHashObj && 'cdip' in newHashObj) {
+    if (oldHashObj['cdip'] === newHashObj['cdip']) {
+      // something else changed, do nothing here.
+    } else {
+      throw new Error(`Shouldn't reach here!`);
+    }
+  } else if ('cdip' in oldHashObj && !('cdip' in newHashObj)) {
+    // Close confirm discard popup
+    dispatch(updatePopup(CONFIRM_DISCARD_POPUP, false, null));
+  } else if (!('cdip' in oldHashObj) && 'cdip' in newHashObj) {
+    // Open confirm discard popup
+    dispatch(updatePopup(CONFIRM_DISCARD_POPUP, true, null));
+  }
+};
+
+export const updateUrlHash = (q, doReplace = false) => {
+  const hashObj = { ...urlHashToObj(window.location.hash), ...q };
+  const updatedHash = objToUrlHash(hashObj);
+
+  if (doReplace) {
+    const urlObj = new Url(window.location.href, {});
+    urlObj.set('hash', updatedHash);
+    window.location.replace(urlObj.toString());
+  } else window.location.hash = updatedHash;
+};
+
+export const updatePopupUrlHash = (id, isShown, anchorPosition, doReplace = false) => {
+  if (!isShown) {
+    window.history.back();
+    return;
+  }
+
+  // editorPopup, confirmDeletePopup, and confirmDiscardpopup
+  //   uses diff key because can display together with others
+  let obj;
+  if (id === EDITOR_POPUP) obj = { ep: true };
+  else if (id === CONFIRM_DELETE_POPUP) obj = { cdp: true };
+  else if (id === CONFIRM_DISCARD_POPUP) obj = { cdip: true };
+  else {
+    obj = {
+      p: id,
+      ppx: anchorPosition ? Math.round(anchorPosition.x) : null,
+      ppy: anchorPosition ? Math.round(anchorPosition.y) : null,
+      ppw: anchorPosition ? Math.round(anchorPosition.width) : null,
+      pph: anchorPosition ? Math.round(anchorPosition.height) : null,
+      ppt: anchorPosition ? Math.round(anchorPosition.top) : null,
+      ppr: anchorPosition ? Math.round(anchorPosition.right) : null,
+      ppb: anchorPosition ? Math.round(anchorPosition.bottom) : null,
+      ppl: anchorPosition ? Math.round(anchorPosition.left) : null,
+    };
+  }
+  updateUrlHash(obj, doReplace);
+};
+
+export const updatePopup = (id, isShown, anchorPosition) => {
+  return {
+    type: UPDATE_POPUP,
+    payload: { id, isShown, anchorPosition },
+  };
 };

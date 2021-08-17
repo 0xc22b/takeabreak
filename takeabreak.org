@@ -64,7 +64,7 @@
 - Feature
 - SupportUs
 - Footer
-- TopBarMenuPoup
+- TopBarMenuPopup
 - TimerList
 - TimerItem
 - TimerItemMenuPopup
@@ -74,6 +74,8 @@
 - EditorReminderSoundMenuPopup
 - EditorNextTimerMenuPopup
 - EditorNextTimerStartsByMenuPopup
+- ConfirmDeletePopup
+- ConfirmDiscardPopup
 ** Redux reducers
 - timersReducer
   {
