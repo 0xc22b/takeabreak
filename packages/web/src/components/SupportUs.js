@@ -32,7 +32,7 @@ const SupportUs = () => {
             </div>
           </div>
           <div className="mt-8 lg:mt-0 lg:ml-8">
-            <img className="sm:mx-auto sm:max-w-sm" src={imageRight} />
+            <img className="sm:mx-auto sm:max-w-sm" src={imageRight} alt="" />
           </div>
         </div>
       </div>

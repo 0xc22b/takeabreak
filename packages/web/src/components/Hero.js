@@ -72,7 +72,7 @@ const Hero = () => {
             <div className="flex-1"></div>
             <div className="flex-1 w-full bg-gray-800"></div>
           </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6">
             <TimerList />
           </div>
         </div>

@@ -13,3 +13,16 @@ export const CENTER = 'CENTER'; // center of the window
 export const EDGE = 'EDGE'; // bottom or right of the window
 export const AT_TRIGGER = 'AT_TRIGGER'; // top or left of the trigger
 export const EDGE_TRIGGER = 'EDGE_TRIGGER'; // bottom or right of the trigger
+
+export const INIT = 'INIT';
+export const RUNNING = 'RUNNING';
+export const PAUSED = 'PAUSED';
+export const TIMED_UP = 'TIMED_UP';
+export const DISABLED = 'DISABLED';
+
+export const SM_WIDTH = 640;
+export const MD_WIDTH = 768;
+export const LG_WIDTH = 1024;
+export const XL_WIDTH = 1280;
+
+export const ID = 'id';

@@ -5,7 +5,9 @@ import Feature from './Feature';
 import SupportUs from './SupportUs';
 import Footer from './Footer';
 import TopBarMenuPopup from './TopBarMenuPopup';
+import TimerItemMenuPopup from './TimerItemMenuPopup';
 //import EditorPopup from './EditorPopup';
+import ConfirmDeletePopup from './ConfirmDeletePopup';
 
 const Main = () => {
 
@@ -16,6 +18,8 @@ const Main = () => {
       <SupportUs />
       <Footer />
       <TopBarMenuPopup />
+      <TimerItemMenuPopup />
+      <ConfirmDeletePopup />
     </React.Fragment>
   );
 };

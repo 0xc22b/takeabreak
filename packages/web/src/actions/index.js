@@ -1,9 +1,15 @@
 import { load as loadRedux } from "redux-localstorage-simple";
 import Url from 'url-parse';
 
-import { INIT, UPDATE_WINDOW_SIZE, UPDATE_POPUP } from '../types/actionTypes';
 import {
-  EDITOR_POPUP, CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP,
+  INIT, UPDATE_WINDOW_SIZE, UPDATE_POPUP,
+  UPDATE_RUNNING_TIMER_ID, UPDATE_RUNNING_FLAG, DECREASE_RUNNING_DURATION,
+  UPDATE_SELECTING_TIMER_ID,
+  DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
+  RESET_DATA,
+} from '../types/actionTypes';
+import {
+  TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP,
 } from '../types/const';
 import { throttle, urlHashToObj, objToUrlHash } from '../utils';
 
@@ -189,4 +195,52 @@ export const updatePopup = (id, isShown, anchorPosition) => {
     type: UPDATE_POPUP,
     payload: { id, isShown, anchorPosition },
   };
+};
+
+export const updateRunningTimerId = (id) => async (dispatch, getState) => {
+  const duration = id ? getState().timers.byId[id].duration : null;
+  dispatch({
+    type: UPDATE_RUNNING_TIMER_ID,
+    payload: { timerId: id, timerDuration: duration },
+  });
+};
+
+export const updateRunningFlag = (flag) => {
+  return { type: UPDATE_RUNNING_FLAG, payload: flag };
+};
+
+export const decreaseRunningDuration = (amount = 1) => {
+  return { type: DECREASE_RUNNING_DURATION, payload: amount };
+};
+
+export const updateSelectingTimerId = (id) => {
+  return { type: UPDATE_SELECTING_TIMER_ID, payload: id };
+};
+
+export const moveTimerUp = () => async (dispatch, getState) => {
+  const id = getState().display.selectingTimerId;
+  dispatch({ type: MOVE_TIMER_UP, payload: id });
+};
+
+export const moveTimerDown = () => async (dispatch, getState) => {
+  const id = getState().display.selectingTimerId;
+  dispatch({ type: MOVE_TIMER_DOWN, payload: id });
+};
+
+export const confirmDelete = () => async (dispatch, getState) => {
+  const id = getState().display.selectingTimerId;
+  dispatch({ type: DELETE_TIMER, payload: id });
+  updatePopupUrlHash(TIMER_ITEM_MENU_POPUP, false, null);
+};
+
+export const importData = () => async (dispatch, getState) => {
+
+};
+
+export const exportData = () => async (dispatch, getState) => {
+
+};
+
+export const resetData = () => {
+  return { type: RESET_DATA };
 };

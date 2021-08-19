@@ -138,3 +138,17 @@ export const randomString = (length) => {
   }
   return result;
 };
+
+export const swapArrayElements = (a, x, y) => (a[x] && a[y] && [
+  ...a.slice(0, x),
+  a[y],
+  ...a.slice(x + 1, y),
+  a[x],
+  ...a.slice(y + 1),
+]) || a;
+
+export const getMMSS = (seconds) => {
+  const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const ss = String(seconds % 60).padStart(2, '0');
+  return `${mm}:${ss}`;
+};
