@@ -1,4 +1,4 @@
-export const initialTimersState = {
+export const defaultTimersState = {
   byId: {
     't1629185871053': {
       id: 't1629185871053',
@@ -26,7 +26,7 @@ export const initialTimersState = {
   ids: ['t1629185871053', 't1629185891083'],
 };
 
-export const initialTimerRemindersState = {
+export const defaultTimerRemindersState = {
   byId: {
     'r1629186381739': {
       id: 'r1629186381739',
@@ -45,4 +45,25 @@ export const initialTimerRemindersState = {
       sound: '',
     }
   },
+};
+
+export const defaultEditorState = {
+  id: null,
+  name: null,
+  duration: null,
+  defaultMessage: null,
+  defaultMessageDisplayDuration: null,
+  defaultSound: null,
+  reminders: [
+    {
+      id: null,
+      repetitions: 1,
+      interval: 15,
+      message: null,
+      messageDisplayDuration: 10,
+      sound: '',
+    },
+  ],
+  nextTimer: null,
+  nextTimerStartsBy: null,
 };

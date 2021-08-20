@@ -69,7 +69,9 @@
 - TimerItem
 - TimerItemMenuPopup
 - EditorPopup
-- EditorReminder
+- EditorForm
+- EditorReminderList
+- EditorReminderItem
 - EditorReminderMenuPopup
 - EditorReminderSoundMenuPopup
 - EditorNextTimerMenuPopup

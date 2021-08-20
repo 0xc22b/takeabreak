@@ -2,8 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimateSharedLayout } from 'framer-motion';
 
-import { updatePopupUrlHash, updateSelectingTimerId } from '../actions';
-import { EDITOR_POPUP } from '../types/const';
+import { showEditor } from '../actions';
 
 import TimerItem from './TimerItem';
 
@@ -13,8 +12,7 @@ const TimerList = () => {
   const dispatch = useDispatch();
 
   const onAddBtnClick = () => {
-    dispatch(updateSelectingTimerId(null));
-    updatePopupUrlHash(EDITOR_POPUP, true, null);
+    dispatch(showEditor(true));
   };
 
   const rowAdd = (

@@ -4,13 +4,17 @@ import Url from 'url-parse';
 import {
   INIT, UPDATE_WINDOW_SIZE, UPDATE_POPUP,
   UPDATE_RUNNING_TIMER_ID, UPDATE_RUNNING_FLAG, DECREASE_RUNNING_DURATION,
-  UPDATE_SELECTING_TIMER_ID,
+  UPDATE_SELECTING_TIMER_ID, SHOW_EDITOR, UPDATE_EDITOR_NAME, UPDATE_EDITOR_DURATION,
+  UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN, UPDATE_EDITOR_SELECTING_REMINDER_KEY,
+  UPDATE_EDITOR_DURATION_ERR_MSG,
   DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
   RESET_DATA,
+
 } from '../types/actionTypes';
 import {
   TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP,
 } from '../types/const';
+import { defaultEditorState } from "../types/defaultStates";
 import { throttle, urlHashToObj, objToUrlHash } from '../utils';
 
 export const init = () => async (dispatch, getState) => {
@@ -231,6 +235,47 @@ export const confirmDelete = () => async (dispatch, getState) => {
   const id = getState().display.selectingTimerId;
   dispatch({ type: DELETE_TIMER, payload: id });
   updatePopupUrlHash(TIMER_ITEM_MENU_POPUP, false, null);
+};
+
+export const showEditor = (isNew) => async (dispatch, getState) => {
+  let editorState;
+  if (isNew) editorState = defaultEditorState;
+  else {
+    const timerId = getState().display.selectingTimerId;
+    const timer = getState().timers.byId[timerId];
+
+    editorState = { ...timer };
+    editorState.reminders = editorState.reminders.map(id => {
+      return getState().timerReminders.byId[id];
+    });
+  }
+
+  dispatch({ type: SHOW_EDITOR, payload: editorState });
+  updatePopupUrlHash(EDITOR_POPUP, true, null);
+};
+
+export const updateEditorName = (name) => {
+  return { type: UPDATE_EDITOR_NAME, payload: name };
+};
+
+export const updateEditorDuration = (duration) => {
+  return { type: UPDATE_EDITOR_DURATION, payload: duration };
+};
+
+export const updateEditorIsMoreSettingsShown = (isShown) => {
+  return { type: UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN, payload: isShown };
+};
+
+export const updateEditorSelectingReminderKey = (key) => {
+  return { type: UPDATE_EDITOR_SELECTING_REMINDER_KEY, payload: key };
+};
+
+export const addEditorReminder = () => {
+
+};
+
+export const updateEditorDurationErrMsg = (msg) => {
+  return { type: UPDATE_EDITOR_DURATION_ERR_MSG, payload: msg };
 };
 
 export const importData = () => async (dispatch, getState) => {

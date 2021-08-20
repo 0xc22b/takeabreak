@@ -1,5 +1,5 @@
 import { INIT, RESET_DATA } from '../types/actionTypes';
-import { initialTimerRemindersState } from '../types/initialStates';
+import { defaultTimerRemindersState } from '../types/defaultStates';
 
 const timerRemindersReducer = (state = { byId: null }, action) => {
 
@@ -7,11 +7,11 @@ const timerRemindersReducer = (state = { byId: null }, action) => {
     const { loadedState } = action.payload;
     if (loadedState && loadedState.timerReminders) return loadedState.timerReminders;
 
-    return initialTimerRemindersState;
+    return defaultTimerRemindersState;
   }
 
   if (action.type === RESET_DATA) {
-    return initialTimerRemindersState;
+    return defaultTimerRemindersState;
   }
 
   return state;

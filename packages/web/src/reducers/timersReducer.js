@@ -3,7 +3,7 @@ import {
   RESET_DATA,
 } from '../types/actionTypes';
 import { ID } from '../types/const';
-import { initialTimersState } from '../types/initialStates';
+import { defaultTimersState } from '../types/defaultStates';
 import { swapArrayElements } from '../utils';
 import { _ } from '../utils/obj';
 
@@ -13,7 +13,7 @@ const timersReducer = (state = { byId: null, ids: null }, action) => {
     const { loadedState } = action.payload;
     if (loadedState && loadedState.timers) return loadedState.timers;
 
-    return initialTimersState;
+    return defaultTimersState;
   }
 
   if (action.type === DELETE_TIMER) {
@@ -54,7 +54,7 @@ const timersReducer = (state = { byId: null, ids: null }, action) => {
   }
 
   if (action.type === RESET_DATA) {
-    return initialTimersState;
+    return defaultTimersState;
   }
 
   return state;

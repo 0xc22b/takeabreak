@@ -2,10 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { updatePopupUrlHash, moveTimerUp, moveTimerDown } from '../actions';
-import {
-  TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, CONFIRM_DELETE_POPUP,
-} from '../types/const';
+import { updatePopupUrlHash, moveTimerUp, moveTimerDown, showEditor } from '../actions';
+import { TIMER_ITEM_MENU_POPUP, CONFIRM_DELETE_POPUP } from '../types/const';
 import { popupBgFMV, popupFMV } from '../types/animConfigs';
 
 import { useSafeAreaFrame } from '.';
@@ -23,8 +21,8 @@ const TimerItemMenuPopup = () => {
   };
 
   const onEditBtnClick = () => {
-    setTimeout(() => updatePopupUrlHash(EDITOR_POPUP, true, null), 100);
     onCancelBtnClick();
+    setTimeout(() => dispatch(showEditor(false)), 100);
   };
 
   const onMoveUpBtnClick = () => {
