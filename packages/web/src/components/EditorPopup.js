@@ -48,10 +48,10 @@ const EditorPopup = () => {
           <div className="fixed inset-0">
             <motion.button ref={cancelBtn} onClick={onCancelBtnClick} className="absolute inset-0 w-full h-full bg-black bg-opacity-30 cursor-default focus:outline-none" variants={popupBgFMV} initial="hidden" animate="visible" exit="hidden" />
           </div>
-          <motion.div className="relative w-full max-w-2xl px-4 sm:px-6" style={{ marginTop: panelMarginTop }} variants={popupFMV} initial="hidden" animate="visible" exit="hidden" layout={true} role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-            <motion.div className="bg-white rounded-lg shadow-xl overflow-x-hidden overflow-y-auto" style={panelStyle} layout={true}>
+          <motion.div className="relative w-full max-w-2xl px-4 sm:px-6" style={{ marginTop: panelMarginTop }} variants={popupFMV} initial="hidden" animate="visible" exit="hidden" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+            <div className="bg-white rounded-lg shadow-xl overflow-x-hidden overflow-y-auto" style={panelStyle}>
               <EditorForm />
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>

@@ -1,19 +1,26 @@
 import {
-  SHOW_EDITOR, UPDATE_EDITOR_NAME, UPDATE_EDITOR_DURATION,
-  UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN, UPDATE_EDITOR_SELECTING_REMINDER_KEY,
+  INIT_EDITOR, UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN,
+  UPDATE_EDITOR_NAME, UPDATE_EDITOR_DURATION, UPDATE_EDITOR_REMINDER_MESSAGE,
+  UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION, UPDATE_EDITOR_REMINDER_SOUND,
+  UPDATE_EDITOR_REMINDER_REPETITIONS, UPDATE_EDITOR_REMINDER_INTERVAL,
+  UPDATE_EDITOR_NEXT_TIMER_ID, UPDATE_EDITOR_NEXT_TIMER_STARTS_BY,
+  UPDATE_EDITOR_SELECTING_REMINDER_KEY, UPDATE_EDITOR_REMINDER_IS_MORE_OPTIONS_SHOWN,
   UPDATE_EDITOR_DURATION_ERR_MSG,
+  ADD_EDITOR_REMINDER, DELETE_EDITOR_REMINDER,
+  MOVE_EDITOR_REMINDER_UP, MOVE_EDITOR_REMINDER_DOWN,
 } from '../types/actionTypes';
-import { randomString } from '../utils';
+import { defaultEditorReminderState } from '../types/defaultStates';
+import { randomString, swapArrayElements } from '../utils';
 
 const initialState = {
   id: null,
   name: null,
   duration: null,
-  defaultMessage: null,
-  defaultMessageDisplayDuration: null,
-  defaultSound: null,
+  reminderMessage: null,
+  reminderMessageDisplayDuration: null,
+  reminderSound: null,
   reminders: null,
-  nextTimer: null,
+  nextTimerId: null,
   nextTimerStartsBy: null,
   isMoreSettingsShown: false,
   selectingReminderKey: null,
@@ -22,7 +29,7 @@ const initialState = {
 
 const editorReducer = (state = initialState, action) => {
 
-  if (action.type === SHOW_EDITOR) {
+  if (action.type === INIT_EDITOR) {
     const newState = {
       ...state,
       ...action.payload,
@@ -34,8 +41,7 @@ const editorReducer = (state = initialState, action) => {
       return {
         ...reminder,
         key: `${randomString(6)}-${randomString(6)}`,
-        //isMoreOptionsShown: false,
-        isMoreOptionsShown: true,
+        isMoreOptionsShown: false,
       };
     });
     return newState;
@@ -45,8 +51,147 @@ const editorReducer = (state = initialState, action) => {
     return { ...state, isMoreSettingsShown: action.payload };
   }
 
+  if (action.type === UPDATE_EDITOR_NAME) {
+    return { ...state, name: action.payload };
+  }
+
+  if (action.type === UPDATE_EDITOR_DURATION) {
+    return { ...state, duration: action.payload };
+  }
+
+  if (action.type === UPDATE_EDITOR_REMINDER_MESSAGE) {
+    const { msg, key } = action.payload;
+    if (!key) return { ...state, reminderMessage: msg };
+    else return {
+      ...state,
+      reminders: state.reminders.map(reminder => {
+        if (reminder.key !== key) return reminder;
+        return { ...reminder, message: msg };
+      }),
+    };
+  }
+
+  if (action.type === UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION) {
+    const { duration, key } = action.payload;
+    if (!key) return { ...state, reminderMessageDisplayDuration: duration };
+    else return {
+      ...state,
+      reminders: state.reminders.map(reminder => {
+        if (reminder.key !== key) return reminder;
+        return { ...reminder, messageDisplayDuration: duration };
+      }),
+    };
+  }
+
+  if (action.type === UPDATE_EDITOR_REMINDER_SOUND) {
+    const { sound, key } = action.payload;
+    if (!key) return { ...state, reminderSound: sound };
+    else return {
+      ...state,
+      reminders: state.reminders.map(reminder => {
+        if (reminder.key !== key) return reminder;
+        return { ...reminder, sound };
+      }),
+    };
+  }
+
+  if (action.type === UPDATE_EDITOR_REMINDER_REPETITIONS) {
+    const { repetitions, key } = action.payload;
+    return {
+      ...state,
+      reminders: state.reminders.map(reminder => {
+        if (reminder.key !== key) return reminder;
+        return { ...reminder, repetitions };
+      }),
+    };
+  }
+
+  if (action.type === UPDATE_EDITOR_REMINDER_INTERVAL) {
+    const { interval, key } = action.payload;
+    return {
+      ...state,
+      reminders: state.reminders.map(reminder => {
+        if (reminder.key !== key) return reminder;
+        return { ...reminder, interval };
+      }),
+    };
+  }
+
+  if (action.type === UPDATE_EDITOR_NEXT_TIMER_ID) {
+    return { ...state, nextTimerId: action.payload };
+  }
+
+  if (action.type === UPDATE_EDITOR_NEXT_TIMER_STARTS_BY) {
+    return { ...state, nextTimerStartsBy: action.payload };
+  }
+
   if (action.type === UPDATE_EDITOR_SELECTING_REMINDER_KEY) {
     return { ...state, selectingReminderKey: action.payload };
+  }
+
+  if (action.type === UPDATE_EDITOR_REMINDER_IS_MORE_OPTIONS_SHOWN) {
+    const { isShown, key } = action.payload;
+    return {
+      ...state,
+      reminders: state.reminders.map(reminder => {
+        if (reminder.key !== key) return reminder;
+        return { ...reminder, isMoreOptionsShown: isShown };
+      }),
+    };
+  }
+
+  if (action.type === UPDATE_EDITOR_DURATION_ERR_MSG) {
+    return { ...state, durationErrMsg: action.payload };
+  }
+
+  if (action.type === ADD_EDITOR_REMINDER) {
+    return {
+      ...state,
+      reminders: [
+        ...state.reminders,
+        {
+          ...defaultEditorReminderState,
+          key: `${randomString(6)}-${randomString(6)}`,
+          isMoreOptionsShown: false,
+        },
+      ],
+    }
+  }
+
+  if (action.type === DELETE_EDITOR_REMINDER) {
+    const key = action.payload;
+    const newState = { ...state };
+    newState.reminders = newState.reminders.filter(reminder => reminder.key !== key);
+    return newState;
+  }
+
+  if (action.type === MOVE_EDITOR_REMINDER_UP) {
+    const key = action.payload;
+    const i = state.reminders.findIndex(reminder => reminder.key === key);
+    if (i === -1) {
+      console.log(`Error in MOVE_EDITOR_REMINDER_UP: key: ${key} not in ${state.reminders}`);
+      return state;
+    }
+    if (i === 0) return state;
+
+    const newState = { ...state };
+    newState.reminders = swapArrayElements(newState.reminders, i - 1, i);
+    return newState;
+  }
+
+  if (action.type === MOVE_EDITOR_REMINDER_DOWN) {
+    const key = action.payload;
+    const length = state.reminders.length;
+    const i = state.reminders.findIndex(reminder => reminder.key === key);
+    if (i === -1) {
+      console.log(`Error in MOVE_EDITOR_REMINDER_DOWN: key: ${key} not in ${state.reminders}`);
+      return state;
+    }
+    if (i === length - 1) return state;
+
+    const newState = { ...state };
+    newState.reminders = swapArrayElements(newState.reminders, i, i + 1);
+    return newState;
   }
 
   return state;

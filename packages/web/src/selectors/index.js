@@ -33,3 +33,46 @@ export const makeGetRunningDuration = () => {
     }
   );
 };
+
+/** @return {function(any, any): any} */
+export const getIsMoreOptionsShown = createSelector(
+  state => state.editor.selectingReminderKey,
+  (_, state) => state.editor.reminders,
+  (key, reminders) => {
+    if (key && reminders) {
+      const reminder = reminders.find(reminder => reminder.key === key);
+      if (reminder) return reminder.isMoreOptionsShown;
+    }
+
+    return false;
+  }
+);
+
+/** @return {function(any, any): any} */
+export const getNextTimers = createSelector(
+  state => state.editor.id,
+  (_, state) => state.timers.byId,
+  (id, timers) => {
+    let nextTimers = [];
+    if (timers) {
+      nextTimers = Object.values(timers)
+        .filter(timer => timer.id !== id)
+        .map(timer => ({ id: timer.id, name: timer.name }));
+    }
+    return [{ id: 'None', name: 'None' }, ...nextTimers];
+  }
+);
+
+/** @return {function(any, any): any} */
+export const getNextTimerName = createSelector(
+  state => state.editor.nextTimerId,
+  (_, state) => state.timers.byId,
+  (nextTimerId, timers) => {
+    if (nextTimerId && timers) {
+      const timer = Object.values(timers).find(timer => timer.id === nextTimerId);
+      if (timer) return timer.name;
+    }
+
+    return 'None';
+  }
+);

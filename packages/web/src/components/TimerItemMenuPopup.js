@@ -5,12 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { updatePopupUrlHash, moveTimerUp, moveTimerDown, showEditor } from '../actions';
 import { TIMER_ITEM_MENU_POPUP, CONFIRM_DELETE_POPUP } from '../types/const';
 import { popupBgFMV, popupFMV } from '../types/animConfigs';
-
-import { useSafeAreaFrame } from '.';
+import {
+  computePosition, createLayouts, getOriginStyleValue,
+} from './MenuPopupRenderer';
 
 const TimerItemMenuPopup = () => {
 
-  const { width: safeAreaWidth } = useSafeAreaFrame();
   const isShown = useSelector(state => state.display.isTimerItemMenuPopupShown);
   const anchorPosition = useSelector(state => state.display.timerItemMenuPopupPosition);
   const cancelBtn = useRef(null);
@@ -45,11 +45,12 @@ const TimerItemMenuPopup = () => {
 
   if (!isShown) return <AnimatePresence key="AP_TimerItemMenuPopup" />;
 
-  const popupStyle = {
-    top: anchorPosition.top + anchorPosition.height + window.pageYOffset,
-    right: safeAreaWidth - anchorPosition.right,
-    transformOrigin: 'top right',
-  };
+  const layouts = createLayouts(anchorPosition, { width: 140, height: 152 });
+  const popupPosition = computePosition(layouts, null, 8);
+
+  const { top, left, topOrigin, leftOrigin } = popupPosition;
+  const origin = getOriginStyleValue(topOrigin, leftOrigin);
+  const popupStyle = { top: top + window.pageYOffset, left, transformOrigin: origin };
 
   const buttons = (
     <React.Fragment>
@@ -84,7 +85,7 @@ const TimerItemMenuPopup = () => {
   return (
     <AnimatePresence key="AP_TimerItemMenuPopup">
       <motion.button key="TimerItemMenuPopup_cancelBtn" ref={cancelBtn} onClick={onCancelBtnClick} className="fixed inset-0 w-full h-full bg-black bg-opacity-25 cursor-default focus:outline-none" variants={popupBgFMV} initial="hidden" animate="visible" exit="hidden" />
-      <motion.div key="TimerItemMenuPopup_popup" style={popupStyle} className="absolute mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" variants={popupFMV} initial="hidden" animate="visible" exit="hidden" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+      <motion.div key="TimerItemMenuPopup_popup" style={popupStyle} className="absolute rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" variants={popupFMV} initial="hidden" animate="visible" exit="hidden" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
         <div className="py-1" role="none">
           {buttons}
         </div>

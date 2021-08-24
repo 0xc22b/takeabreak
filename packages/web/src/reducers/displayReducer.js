@@ -3,8 +3,9 @@ import {
   UPDATE_SELECTING_TIMER_ID,
 } from '../types/actionTypes';
 import {
-  TOP_BAR_MENU_POPUP, TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, CONFIRM_DELETE_POPUP,
-  TIMED_UP,
+  TOP_BAR_MENU_POPUP, TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, EDITOR_REMINDER_MENU_POPUP,
+  EDITOR_REMINDER_SOUND_MENU_POPUP, EDITOR_NEXT_TIMER_MENU_POPUP,
+  EDITOR_NEXT_TIMER_STARTS_BY_MENU_POPUP, CONFIRM_DELETE_POPUP, TIMED_UP,
 } from '../types/const';
 
 const initialState = {
@@ -13,6 +14,14 @@ const initialState = {
   isTimerItemMenuPopupShown: false,
   timerItemMenuPopupPosition: null,
   isEditorPopupShown: false,
+  isEditorReminderMenuPopupShown: false,
+  editorReminderMenuPopupPosition: null,
+  isEditorReminderSoundMenuPopupShown: false,
+  editorReminderSoundMenuPopupPosition: null,
+  isEditorNextTimerMenuPopupShown: false,
+  editorNextTimerMenuPopupPosition: null,
+  isEditorNextTimerStartsByMenuPopupShown: false,
+  editorNextTimerStartsByMenuPopupPosition: null,
   isConfirmDeletePopupShown: false,
   runningTimerId: null,
   runningFlag: null,
@@ -44,6 +53,38 @@ const displayReducer = (state = initialState, action) => {
 
     if (id === EDITOR_POPUP) {
       return { ...state, isEditorPopupShown: isShown };
+    }
+
+    if (id === EDITOR_REMINDER_MENU_POPUP) {
+      return {
+        ...state,
+        isEditorReminderMenuPopupShown: isShown,
+        editorReminderMenuPopupPosition: anchorPosition,
+      };
+    }
+
+    if (id === EDITOR_REMINDER_SOUND_MENU_POPUP) {
+      return {
+        ...state,
+        isEditorReminderSoundMenuPopupShown: isShown,
+        editorReminderSoundMenuPopupPosition: anchorPosition,
+      };
+    }
+
+    if (id === EDITOR_NEXT_TIMER_MENU_POPUP) {
+      return {
+        ...state,
+        isEditorNextTimerMenuPopupShown: isShown,
+        editorNextTimerMenuPopupPosition: anchorPosition,
+      };
+    }
+
+    if (id === EDITOR_NEXT_TIMER_STARTS_BY_MENU_POPUP) {
+      return {
+        ...state,
+        isEditorNextTimerStartsByMenuPopupShown: isShown,
+        editorNextTimerStartsByMenuPopupPosition: anchorPosition,
+      };
     }
 
     if (id === CONFIRM_DELETE_POPUP) {

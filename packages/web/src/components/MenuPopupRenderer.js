@@ -84,3 +84,17 @@ export const getOriginClassName = (topOrigin, leftOrigin) => {
     return 'origin-center';
   }
 };
+
+export const getOriginStyleValue = (topOrigin, leftOrigin) => {
+  if (topOrigin === AT_TRIGGER && leftOrigin === AT_TRIGGER) {
+    return 'top left';
+  } else if (topOrigin === AT_TRIGGER && leftOrigin === EDGE_TRIGGER) {
+    return 'top right';
+  } else if (topOrigin === EDGE_TRIGGER && leftOrigin === AT_TRIGGER) {
+    return 'bottom left';
+  } else if (topOrigin === EDGE_TRIGGER && leftOrigin === EDGE_TRIGGER) {
+    return 'bottom right';
+  } else {
+    return 'center';
+  }
+};

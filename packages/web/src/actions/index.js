@@ -4,15 +4,20 @@ import Url from 'url-parse';
 import {
   INIT, UPDATE_WINDOW_SIZE, UPDATE_POPUP,
   UPDATE_RUNNING_TIMER_ID, UPDATE_RUNNING_FLAG, DECREASE_RUNNING_DURATION,
-  UPDATE_SELECTING_TIMER_ID, SHOW_EDITOR, UPDATE_EDITOR_NAME, UPDATE_EDITOR_DURATION,
-  UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN, UPDATE_EDITOR_SELECTING_REMINDER_KEY,
-  UPDATE_EDITOR_DURATION_ERR_MSG,
-  DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
+  UPDATE_SELECTING_TIMER_ID, INIT_EDITOR, UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN,
+  UPDATE_EDITOR_NAME, UPDATE_EDITOR_DURATION, UPDATE_EDITOR_REMINDER_MESSAGE,
+  UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION, UPDATE_EDITOR_REMINDER_SOUND,
+  UPDATE_EDITOR_REMINDER_REPETITIONS, UPDATE_EDITOR_REMINDER_INTERVAL,
+  UPDATE_EDITOR_NEXT_TIMER_ID, UPDATE_EDITOR_NEXT_TIMER_STARTS_BY,
+  UPDATE_EDITOR_SELECTING_REMINDER_KEY, UPDATE_EDITOR_REMINDER_IS_MORE_OPTIONS_SHOWN,
+  UPDATE_EDITOR_DURATION_ERR_MSG, DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
+  ADD_EDITOR_REMINDER, DELETE_EDITOR_REMINDER,
+  MOVE_EDITOR_REMINDER_UP, MOVE_EDITOR_REMINDER_DOWN,
   RESET_DATA,
-
 } from '../types/actionTypes';
 import {
-  TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP,
+  TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, EDITOR_REMINDER_MENU_POPUP,
+  CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP,
 } from '../types/const';
 import { defaultEditorState } from "../types/defaultStates";
 import { throttle, urlHashToObj, objToUrlHash } from '../utils';
@@ -231,12 +236,6 @@ export const moveTimerDown = () => async (dispatch, getState) => {
   dispatch({ type: MOVE_TIMER_DOWN, payload: id });
 };
 
-export const confirmDelete = () => async (dispatch, getState) => {
-  const id = getState().display.selectingTimerId;
-  dispatch({ type: DELETE_TIMER, payload: id });
-  updatePopupUrlHash(TIMER_ITEM_MENU_POPUP, false, null);
-};
-
 export const showEditor = (isNew) => async (dispatch, getState) => {
   let editorState;
   if (isNew) editorState = defaultEditorState;
@@ -250,8 +249,12 @@ export const showEditor = (isNew) => async (dispatch, getState) => {
     });
   }
 
-  dispatch({ type: SHOW_EDITOR, payload: editorState });
+  dispatch({ type: INIT_EDITOR, payload: editorState });
   updatePopupUrlHash(EDITOR_POPUP, true, null);
+};
+
+export const updateEditorIsMoreSettingsShown = (isShown) => {
+  return { type: UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN, payload: isShown };
 };
 
 export const updateEditorName = (name) => {
@@ -262,20 +265,89 @@ export const updateEditorDuration = (duration) => {
   return { type: UPDATE_EDITOR_DURATION, payload: duration };
 };
 
-export const updateEditorIsMoreSettingsShown = (isShown) => {
-  return { type: UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN, payload: isShown };
+export const updateEditorReminderMessage = (msg, key = null) => {
+  return { type: UPDATE_EDITOR_REMINDER_MESSAGE, payload: { msg, key } };
+};
+
+export const updateEditorReminderMessageDisplayDuration = (duration, key = null) => {
+  return {
+    type: UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION,
+    payload: { duration, key },
+  };
+};
+
+export const updateEditorReminderSound = (sound, key = null) => {
+  return { type: UPDATE_EDITOR_REMINDER_SOUND, payload: { sound, key } };
+};
+
+export const updateEditorReminderRepetitions = (repetitions, key) => {
+  return { type: UPDATE_EDITOR_REMINDER_REPETITIONS, payload: { repetitions, key } };
+};
+
+export const updateEditorReminderInterval = (interval, key) => {
+  return { type: UPDATE_EDITOR_REMINDER_INTERVAL, payload: { interval, key } };
+};
+
+export const updateEditorNextTimerId = (id) => {
+  return { type: UPDATE_EDITOR_NEXT_TIMER_ID, payload: id };
+};
+
+export const updateEditorNextTimerStartsBy = (value) => {
+  return { type: UPDATE_EDITOR_NEXT_TIMER_STARTS_BY, payload: value };
 };
 
 export const updateEditorSelectingReminderKey = (key) => {
   return { type: UPDATE_EDITOR_SELECTING_REMINDER_KEY, payload: key };
 };
 
-export const addEditorReminder = () => {
+export const updateEditorReminderIsMoreOptionsShown = (isShown) => async (
+  dispatch, getState
+) => {
+  const key = getState().editor.selectingReminderKey;
+  dispatch({
+    type: UPDATE_EDITOR_REMINDER_IS_MORE_OPTIONS_SHOWN,
+    payload: { isShown, key },
+  })
+};
 
+export const addEditorReminder = () => {
+  return { type: ADD_EDITOR_REMINDER };
+};
+
+export const moveEditorReminderUp = () => async (dispatch, getState) => {
+  const key = getState().editor.selectingReminderKey;
+  dispatch({ type: MOVE_EDITOR_REMINDER_UP, payload: key });
+};
+
+export const moveEditorReminderDown = () => async (dispatch, getState) => {
+  const key = getState().editor.selectingReminderKey;
+  dispatch({ type: MOVE_EDITOR_REMINDER_DOWN, payload: key });
 };
 
 export const updateEditorDurationErrMsg = (msg) => {
   return { type: UPDATE_EDITOR_DURATION_ERR_MSG, payload: msg };
+};
+
+export const confirmDelete = () => async (dispatch, getState) => {
+  let isShown;
+
+  isShown = getState().display.isTimerItemMenuPopupShown;
+  if (isShown) {
+    const id = getState().display.selectingTimerId;
+    dispatch({ type: DELETE_TIMER, payload: id });
+    updatePopupUrlHash(TIMER_ITEM_MENU_POPUP, false, null);
+    return;
+  }
+
+  isShown = getState().display.isEditorReminderMenuPopupShown;
+  if (isShown) {
+    const key = getState().editor.selectingReminderKey;
+    dispatch({ type: DELETE_EDITOR_REMINDER, payload: key });
+    updatePopupUrlHash(EDITOR_REMINDER_MENU_POPUP, false, null);
+    return;
+  }
+
+  throw new Error(`Invalid isShown: ${isShown}`);
 };
 
 export const importData = () => async (dispatch, getState) => {

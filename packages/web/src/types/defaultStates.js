@@ -4,23 +4,23 @@ export const defaultTimersState = {
       id: 't1629185871053',
       name: 'Work',
       duration: 25 * 60, // seconds
-      defaultMessage: 'Work has ended.',
-      defaultMessageDisplayDuration: 10, // seconds
-      defaultSound: '',
+      reminderMessage: 'Work has ended.',
+      reminderMessageDisplayDuration: 10, // seconds
+      reminderSound: 'Complete',
       reminders: ['r1629186381739'],
-      nextTimer: null,
-      nextTimerStartsBy: null,
+      nextTimerId: 'None',
+      nextTimerStartsBy: 'Auto',
     },
     't1629185891083': {
       id: 't1629185891083',
       name: 'Break',
       duration: 7 * 60,
-      defaultMessage: 'Break has ended.',
-      defaultMessageDisplayDuration: 10,
-      defaultSound: '',
+      reminderMessage: 'Break has ended.',
+      reminderMessageDisplayDuration: 10,
+      reminderSound: 'Complete',
       reminders: ['r1629186403698'],
-      nextTimer: null,
-      nextTimerStartsBy: null,
+      nextTimerId: 'None',
+      nextTimerStartsBy: 'Auto',
     }
   },
   ids: ['t1629185871053', 't1629185891083'],
@@ -33,37 +33,50 @@ export const defaultTimerRemindersState = {
       repetitions: 1, // times
       interval: 15, // seconds
       message: null,
-      messageDisplayDuration: 10, // seconds
-      sound: '',
+      messageDisplayDuration: null, // seconds
+      sound: null,
     },
     'r1629186403698': {
       id: 'r1629186403698',
       repetitions: 1,
       interval: 15,
       message: null,
-      messageDisplayDuration: 10,
-      sound: '',
+      messageDisplayDuration: null,
+      sound: null,
     }
   },
 };
 
 export const defaultEditorState = {
   id: null,
-  name: null,
-  duration: null,
-  defaultMessage: null,
-  defaultMessageDisplayDuration: null,
-  defaultSound: null,
+  name: '',
+  duration: '',
+  reminderMessage: '',
+  reminderMessageDisplayDuration: '10',
+  reminderSound: 'Complete',
   reminders: [
     {
       id: null,
       repetitions: 1,
       interval: 15,
-      message: null,
-      messageDisplayDuration: 10,
-      sound: '',
+      message: 'Default',
+      customMessage: '',
+      messageDisplayDuration: 'Default',
+      customMessageDisplayDuration: '',
+      sound: 'Complete',
     },
   ],
-  nextTimer: null,
-  nextTimerStartsBy: null,
+  nextTimerId: 'None',
+  nextTimerStartsBy: 'Auto',
+};
+
+export const defaultEditorReminderState = {
+  id: null,
+  repetitions: 1,
+  interval: 15,
+  message: 'Default',
+  customMessage: '',
+  messageDisplayDuration: 'Default',
+  customMessageDisplayDuration: '',
+  sound: 'Complete',
 };
