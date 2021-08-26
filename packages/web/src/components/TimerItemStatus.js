@@ -10,8 +10,8 @@ const TimerItemStatus = (props) => {
   const getTimerState = useMemo(makeGetTimerState, []);
   const getRunningDuration = useMemo(makeGetRunningDuration, []);
   const timer = useSelector(state => state.timers.byId[id]);
-  const timerState = useSelector(state => getTimerState(state, state, id));
-  const runningDuration = useSelector(state => getRunningDuration(state, state, id));
+  const timerState = useSelector(state => getTimerState(state, id));
+  const runningDuration = useSelector(state => getRunningDuration(state, id));
 
   if (timerState === TIMED_UP) {
     return (

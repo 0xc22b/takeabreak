@@ -19,7 +19,7 @@ const EditorReminderMenuPopup = () => {
   const anchorPosition = useSelector(
     state => state.display.editorReminderMenuPopupPosition
   );
-  const isMoreOptionsShown = useSelector(state => getIsMoreOptionsShown(state, state));
+  const isMoreOptionsShown = useSelector(state => getIsMoreOptionsShown(state));
   const cancelBtn = useRef(null);
   const dispatch = useDispatch();
 

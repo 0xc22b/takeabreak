@@ -1,3 +1,5 @@
+import { DEFAULT } from './const';
+
 export const defaultTimersState = {
   byId: {
     't1629185871053': {
@@ -59,11 +61,11 @@ export const defaultEditorState = {
       id: null,
       repetitions: 1,
       interval: 15,
-      message: 'Default',
+      message: DEFAULT,
       customMessage: '',
-      messageDisplayDuration: 'Default',
+      messageDisplayDuration: DEFAULT,
       customMessageDisplayDuration: '',
-      sound: 'Complete',
+      sound: DEFAULT,
     },
   ],
   nextTimerId: 'None',
@@ -74,9 +76,9 @@ export const defaultEditorReminderState = {
   id: null,
   repetitions: 1,
   interval: 15,
-  message: 'Default',
+  message: DEFAULT,
   customMessage: '',
-  messageDisplayDuration: 'Default',
+  messageDisplayDuration: DEFAULT,
   customMessageDisplayDuration: '',
-  sound: 'Complete',
+  sound: DEFAULT,
 };

@@ -1,13 +1,14 @@
 import { createSelector } from 'reselect';
 
-import { INIT, RUNNING, PAUSED, TIMED_UP, DISABLED } from '../types/const';
+import { INIT, RUNNING, PAUSED, TIMED_UP, DISABLED, DEFAULT } from '../types/const';
+import { SOUNDS } from '../types/soundPaths';
 
 /** @return {function(any, any, any): any} */
 export const makeGetTimerState = () => {
   return createSelector(
     state => state.display.runningTimerId,
-    (_, state) => state.display.runningFlag,
-    (_, __, timerId) => timerId,
+    state => state.display.runningFlag,
+    (_, timerId) => timerId,
     (runningTimerId, runningFlag, timerId) => {
       if (runningTimerId) {
         if (runningTimerId !== timerId) return DISABLED;
@@ -25,8 +26,8 @@ export const makeGetTimerState = () => {
 export const makeGetRunningDuration = () => {
   return createSelector(
     state => state.display.runningTimerId,
-    (_, state) => state.display.runningDuration,
-    (_, __, timerId) => timerId,
+    state => state.display.runningDuration,
+    (_, timerId) => timerId,
     (runningTimerId, runningDuration, timerId) => {
       if (runningTimerId === timerId) return runningDuration;
       return null;
@@ -34,24 +35,31 @@ export const makeGetRunningDuration = () => {
   );
 };
 
-/** @return {function(any, any): any} */
 export const getIsMoreOptionsShown = createSelector(
   state => state.editor.selectingReminderKey,
-  (_, state) => state.editor.reminders,
+  state => state.editor.reminders,
   (key, reminders) => {
     if (key && reminders) {
       const reminder = reminders.find(reminder => reminder.key === key);
       if (reminder) return reminder.isMoreOptionsShown;
     }
-
     return false;
   }
 );
 
-/** @return {function(any, any): any} */
+export const getSounds = createSelector(
+  state => state.editor.selectingReminderKey,
+  (key) => {
+    const sounds = [];
+    if (key) sounds.push({ name: DEFAULT, path: null });
+    sounds.push({ name: 'No sound', path: null });
+    return [...sounds, ...SOUNDS];
+  }
+);
+
 export const getNextTimers = createSelector(
   state => state.editor.id,
-  (_, state) => state.timers.byId,
+  state => state.timers.byId,
   (id, timers) => {
     let nextTimers = [];
     if (timers) {
@@ -63,16 +71,14 @@ export const getNextTimers = createSelector(
   }
 );
 
-/** @return {function(any, any): any} */
 export const getNextTimerName = createSelector(
   state => state.editor.nextTimerId,
-  (_, state) => state.timers.byId,
+  state => state.timers.byId,
   (nextTimerId, timers) => {
     if (nextTimerId && timers) {
       const timer = Object.values(timers).find(timer => timer.id === nextTimerId);
       if (timer) return timer.name;
     }
-
     return 'None';
   }
 );

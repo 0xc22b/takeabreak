@@ -2,15 +2,16 @@ import { load as loadRedux } from "redux-localstorage-simple";
 import Url from 'url-parse';
 
 import {
-  INIT, UPDATE_WINDOW_SIZE, UPDATE_POPUP,
+  INIT, UPDATE_WINDOW_SIZE, UPDATE_POPUP, UPDATE_TOOLTIP,
   UPDATE_RUNNING_TIMER_ID, UPDATE_RUNNING_FLAG, DECREASE_RUNNING_DURATION,
   UPDATE_SELECTING_TIMER_ID, INIT_EDITOR, UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN,
   UPDATE_EDITOR_NAME, UPDATE_EDITOR_DURATION, UPDATE_EDITOR_REMINDER_MESSAGE,
-  UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION, UPDATE_EDITOR_REMINDER_SOUND,
+  UPDATE_EDITOR_REMINDER_CUSTOM_MESSAGE, UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION,
+  UPDATE_EDITOR_REMINDER_CUSTOM_MESSAGE_DISPLAY_DURATION, UPDATE_EDITOR_REMINDER_SOUND,
   UPDATE_EDITOR_REMINDER_REPETITIONS, UPDATE_EDITOR_REMINDER_INTERVAL,
   UPDATE_EDITOR_NEXT_TIMER_ID, UPDATE_EDITOR_NEXT_TIMER_STARTS_BY,
   UPDATE_EDITOR_SELECTING_REMINDER_KEY, UPDATE_EDITOR_REMINDER_IS_MORE_OPTIONS_SHOWN,
-  UPDATE_EDITOR_DURATION_ERR_MSG, DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
+  DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
   ADD_EDITOR_REMINDER, DELETE_EDITOR_REMINDER,
   MOVE_EDITOR_REMINDER_UP, MOVE_EDITOR_REMINDER_DOWN,
   RESET_DATA,
@@ -18,6 +19,7 @@ import {
 import {
   TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, EDITOR_REMINDER_MENU_POPUP,
   CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP,
+  MESSAGE_KEY, MESSAGE_DISPLAY_DURATION_KEY,
 } from '../types/const';
 import { defaultEditorState } from "../types/defaultStates";
 import { throttle, urlHashToObj, objToUrlHash } from '../utils';
@@ -206,6 +208,13 @@ export const updatePopup = (id, isShown, anchorPosition) => {
   };
 };
 
+export const updateTooltip = (id, isShown, anchorPosition) => {
+  return {
+    type: UPDATE_TOOLTIP,
+    payload: { id, isShown, anchorPosition },
+  };
+};
+
 export const updateRunningTimerId = (id) => async (dispatch, getState) => {
   const duration = id ? getState().timers.byId[id].duration : null;
   dispatch({
@@ -257,35 +266,102 @@ export const updateEditorIsMoreSettingsShown = (isShown) => {
   return { type: UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN, payload: isShown };
 };
 
-export const updateEditorName = (name) => {
-  return { type: UPDATE_EDITOR_NAME, payload: name };
+export const updateEditorName = (name) => async (dispatch, getState) => {
+  const didReminderMessageTouch = getState().editor.didReminderMessageTouch;
+
+  let reminderMessage = null;
+  if (!didReminderMessageTouch) {
+    if (name === '') reminderMessage = '';
+    else reminderMessage = `${name} has ended.`;
+  }
+
+  dispatch({ type: UPDATE_EDITOR_NAME, payload: { name, reminderMessage } });
 };
 
-export const updateEditorDuration = (duration) => {
-  return { type: UPDATE_EDITOR_DURATION, payload: duration };
+export const updateEditorDuration = (duration) => async (dispatch, getState) => {
+
+  if (/^[0-9]+::+$/.test(duration)) duration = duration.replace(/:+/, ':');
+
+  let msg = null;
+  if (duration.length > 0) {
+    const isF1 = /^[0-9]+$/.test(duration);
+    const isF2 = /^[0-9]+:$/.test(duration);
+    const isF3 = /^[0-9]+:[0-9]+$/.test(duration);
+
+    if (!isF1 && !isF2 && !isF3) {
+      msg = 'Please fill in a number of minutes, then \':\' and a number of seconds i.e. 07:28';
+    } else if (isF1 && !isF2 && !isF3) {
+      const _duration = getState().editor.duration;
+      if (duration.length === 2 && _duration.length === 1) {
+        duration += ':';
+      }
+    }
+  }
+
+  dispatch({ type: UPDATE_EDITOR_DURATION, payload: { duration, msg } });
 };
 
 export const updateEditorReminderMessage = (msg, key = null) => {
   return { type: UPDATE_EDITOR_REMINDER_MESSAGE, payload: { msg, key } };
 };
 
+export const updateEditorReminderCustomMessage = (msg, key = null) => {
+  return { type: UPDATE_EDITOR_REMINDER_CUSTOM_MESSAGE, payload: { msg, key } };
+};
+
 export const updateEditorReminderMessageDisplayDuration = (duration, key = null) => {
+
+  let msg = null;
+  if (duration.length > 0) {
+    if (!/^[0-9]+$/.test(duration)) msg = 'Please fill in a number i.e. 10';
+  }
+
   return {
     type: UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION,
-    payload: { duration, key },
+    payload: { duration, msg, key },
   };
 };
 
-export const updateEditorReminderSound = (sound, key = null) => {
-  return { type: UPDATE_EDITOR_REMINDER_SOUND, payload: { sound, key } };
+export const updateEditorReminderCustomMessageDisplayDuration = (
+  duration, key = null
+) => {
+
+  let msg = null;
+  if (duration.length > 0) {
+    if (!/^[0-9]+$/.test(duration)) msg = 'Please fill in a number i.e. 10';
+  }
+
+  return {
+    type: UPDATE_EDITOR_REMINDER_CUSTOM_MESSAGE_DISPLAY_DURATION,
+    payload: { duration, msg, key },
+  };
+};
+
+export const updateEditorReminderSound = (sound) => async (dispatch, getState) => {
+  const key = getState().editor.selectingReminderKey;
+  dispatch({ type: UPDATE_EDITOR_REMINDER_SOUND, payload: { sound, key } });
 };
 
 export const updateEditorReminderRepetitions = (repetitions, key) => {
-  return { type: UPDATE_EDITOR_REMINDER_REPETITIONS, payload: { repetitions, key } };
+
+  let msg = null;
+  if (repetitions.length > 0) {
+    if (!/^[0-9]+$/.test(repetitions)) msg = 'Please fill in a number i.e. 2';
+  }
+
+  return {
+    type: UPDATE_EDITOR_REMINDER_REPETITIONS, payload: { repetitions, msg, key }
+  };
 };
 
 export const updateEditorReminderInterval = (interval, key) => {
-  return { type: UPDATE_EDITOR_REMINDER_INTERVAL, payload: { interval, key } };
+
+  let msg = null;
+  if (interval.length > 0) {
+    if (!/^[0-9]+$/.test(interval)) msg = 'Please fill in a number i.e. 2';
+  }
+
+  return { type: UPDATE_EDITOR_REMINDER_INTERVAL, payload: { interval, msg, key } };
 };
 
 export const updateEditorNextTimerId = (id) => {
@@ -294,6 +370,17 @@ export const updateEditorNextTimerId = (id) => {
 
 export const updateEditorNextTimerStartsBy = (value) => {
   return { type: UPDATE_EDITOR_NEXT_TIMER_STARTS_BY, payload: value };
+};
+
+export const updateEditorDefault = (value) => async (dispatch, getState) => {
+  const key = getState().editor.selectingReminderKey;
+  const [reminderKey, inputKey] = key.split('/');
+
+  if (inputKey === MESSAGE_KEY) {
+    dispatch(updateEditorReminderMessage(value, reminderKey));
+  } else if (inputKey === MESSAGE_DISPLAY_DURATION_KEY) {
+    dispatch(updateEditorReminderMessageDisplayDuration(value, reminderKey));
+  } else throw new Error(`Invalid inputKey: ${inputKey}`);
 };
 
 export const updateEditorSelectingReminderKey = (key) => {
@@ -324,10 +411,6 @@ export const moveEditorReminderDown = () => async (dispatch, getState) => {
   dispatch({ type: MOVE_EDITOR_REMINDER_DOWN, payload: key });
 };
 
-export const updateEditorDurationErrMsg = (msg) => {
-  return { type: UPDATE_EDITOR_DURATION_ERR_MSG, payload: msg };
-};
-
 export const confirmDelete = () => async (dispatch, getState) => {
   let isShown;
 
@@ -348,6 +431,10 @@ export const confirmDelete = () => async (dispatch, getState) => {
   }
 
   throw new Error(`Invalid isShown: ${isShown}`);
+};
+
+export const saveTimer = () => async (dispatch, getState) => {
+
 };
 
 export const importData = () => async (dispatch, getState) => {

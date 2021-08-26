@@ -11,7 +11,10 @@ import EditorReminderMenuPopup from './EditorReminderMenuPopup';
 import EditorReminderSoundMenuPopup from './EditorReminderSoundMenuPopup';
 import EditorNextTimerMenuPopup from './EditorNextTimerMenuPopup';
 import EditorNextTimerStartsByMenuPopup from './EditorNextTimerStartsByMenuPopup';
+import EditorDefaultMenuPopup from './EditorDefaultMenuPopup';
 import ConfirmDeletePopup from './ConfirmDeletePopup';
+import EditorRepetitionsTooltip from './EditorRepetitionsTooltip';
+import EditorIntervalTooltip from './EditorIntervalTooltip';
 
 const Main = () => {
 
@@ -28,7 +31,10 @@ const Main = () => {
       <EditorReminderSoundMenuPopup />
       <EditorNextTimerMenuPopup />
       <EditorNextTimerStartsByMenuPopup />
+      <EditorDefaultMenuPopup />
       <ConfirmDeletePopup />
+      <EditorRepetitionsTooltip />
+      <EditorIntervalTooltip />
     </React.Fragment>
   );
 };

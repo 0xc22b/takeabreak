@@ -19,6 +19,14 @@ const Footer = () => {
             <p className="text-sm text-gray-400">By The original uploader was Erato at Italian Wikinews. - Transferred from it.wikinews to Commons by Fale using CommonsHelper., CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=4719295</p>
           </div>
           <div className="pt-4">
+            <p className="text-sm text-gray-500">Sound 'Complete'</p>
+            <p className="text-sm text-gray-400">By FreeDesktop - /usr/share/sounds/freedesktop/stereo/complete.oga</p>
+          </div>
+          <div className="pt-4">
+            <p className="text-sm text-gray-500">Sound 'Digital Quick Tone', 'Doorbell Single Press', and 'Double Beep Tone Alert'</p>
+            <p className="text-sm text-gray-400">By Mixkit - https://mixkit.co/free-sound-effects/notification</p>
+          </div>
+          <div className="pt-4">
             <p className="text-sm text-gray-500">All icons</p>
             <p className="text-sm text-gray-400">By Heroicons - https://heroicons.com</p>
           </div>

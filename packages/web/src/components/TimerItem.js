@@ -18,7 +18,7 @@ const TimerItem = (props) => {
   const { id } = props;
   const getTimerState = useMemo(makeGetTimerState, []);
   const timer = useSelector(state => state.timers.byId[id]);
-  const timerState = useSelector(state => getTimerState(state, state, id));
+  const timerState = useSelector(state => getTimerState(state, id));
   const menuBtn = useRef(null);
   const dispatch = useDispatch();
 

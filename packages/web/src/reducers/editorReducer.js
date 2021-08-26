@@ -1,11 +1,11 @@
 import {
   INIT_EDITOR, UPDATE_EDITOR_IS_MORE_SETTINGS_SHOWN,
   UPDATE_EDITOR_NAME, UPDATE_EDITOR_DURATION, UPDATE_EDITOR_REMINDER_MESSAGE,
-  UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION, UPDATE_EDITOR_REMINDER_SOUND,
+  UPDATE_EDITOR_REMINDER_CUSTOM_MESSAGE, UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION,
+  UPDATE_EDITOR_REMINDER_CUSTOM_MESSAGE_DISPLAY_DURATION, UPDATE_EDITOR_REMINDER_SOUND,
   UPDATE_EDITOR_REMINDER_REPETITIONS, UPDATE_EDITOR_REMINDER_INTERVAL,
   UPDATE_EDITOR_NEXT_TIMER_ID, UPDATE_EDITOR_NEXT_TIMER_STARTS_BY,
   UPDATE_EDITOR_SELECTING_REMINDER_KEY, UPDATE_EDITOR_REMINDER_IS_MORE_OPTIONS_SHOWN,
-  UPDATE_EDITOR_DURATION_ERR_MSG,
   ADD_EDITOR_REMINDER, DELETE_EDITOR_REMINDER,
   MOVE_EDITOR_REMINDER_UP, MOVE_EDITOR_REMINDER_DOWN,
 } from '../types/actionTypes';
@@ -25,6 +25,8 @@ const initialState = {
   isMoreSettingsShown: false,
   selectingReminderKey: null,
   durationErrMsg: null,
+  reminderMessageDisplayDurationErrMsg: null,
+  didReminderMessageTouch: false,
 };
 
 const editorReducer = (state = initialState, action) => {
@@ -36,12 +38,17 @@ const editorReducer = (state = initialState, action) => {
       isMoreSettingsShown: false,
       selectingReminderKey: null,
       durationErrMsg: null,
+      reminderMessageDisplayDurationErrMsg: null,
+      didReminderMessageTouch: false,
     };
     newState.reminders = newState.reminders.map(reminder => {
       return {
         ...reminder,
         key: `${randomString(6)}-${randomString(6)}`,
         isMoreOptionsShown: false,
+        repetitionsErrMsg: null,
+        intervalErrMsg: null,
+        messageDisplayDurationErrMsg: null,
       };
     });
     return newState;
@@ -52,16 +59,20 @@ const editorReducer = (state = initialState, action) => {
   }
 
   if (action.type === UPDATE_EDITOR_NAME) {
-    return { ...state, name: action.payload };
+    const { name, reminderMessage } = action.payload;
+    const newState = { ...state, name };
+    if (reminderMessage !== null) newState.reminderMessage = reminderMessage;
+    return newState;
   }
 
   if (action.type === UPDATE_EDITOR_DURATION) {
-    return { ...state, duration: action.payload };
+    const { duration, msg } = action.payload;
+    return { ...state, duration, durationErrMsg: msg };
   }
 
   if (action.type === UPDATE_EDITOR_REMINDER_MESSAGE) {
     const { msg, key } = action.payload;
-    if (!key) return { ...state, reminderMessage: msg };
+    if (!key) return { ...state, reminderMessage: msg, didReminderMessageTouch: true };
     else return {
       ...state,
       reminders: state.reminders.map(reminder => {
@@ -71,14 +82,48 @@ const editorReducer = (state = initialState, action) => {
     };
   }
 
-  if (action.type === UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION) {
-    const { duration, key } = action.payload;
-    if (!key) return { ...state, reminderMessageDisplayDuration: duration };
-    else return {
+  if (action.type === UPDATE_EDITOR_REMINDER_CUSTOM_MESSAGE) {
+    const { msg, key } = action.payload;
+    return {
       ...state,
       reminders: state.reminders.map(reminder => {
         if (reminder.key !== key) return reminder;
-        return { ...reminder, messageDisplayDuration: duration };
+        return { ...reminder, customMessage: msg };
+      }),
+    };
+  }
+
+  if (action.type === UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION) {
+    const { duration, msg, key } = action.payload;
+    if (!key) {
+      return {
+        ...state,
+        reminderMessageDisplayDuration: duration,
+        reminderMessageDisplayDurationErrMsg: msg,
+      };
+    } else {
+      return {
+        ...state,
+        reminders: state.reminders.map(reminder => {
+          if (reminder.key !== key) return reminder;
+          // msg is an error msg, not apply to each reminder as it's dropdown
+          return { ...reminder, messageDisplayDuration: duration };
+        }),
+      };
+    }
+  }
+
+  if (action.type === UPDATE_EDITOR_REMINDER_CUSTOM_MESSAGE_DISPLAY_DURATION) {
+    const { duration, msg, key } = action.payload;
+    return {
+      ...state,
+      reminders: state.reminders.map(reminder => {
+        if (reminder.key !== key) return reminder;
+        return {
+          ...reminder,
+          customMessageDisplayDuration: duration,
+          messageDisplayDurationErrMsg: msg,
+        };
       }),
     };
   }
@@ -96,23 +141,23 @@ const editorReducer = (state = initialState, action) => {
   }
 
   if (action.type === UPDATE_EDITOR_REMINDER_REPETITIONS) {
-    const { repetitions, key } = action.payload;
+    const { repetitions, msg, key } = action.payload;
     return {
       ...state,
       reminders: state.reminders.map(reminder => {
         if (reminder.key !== key) return reminder;
-        return { ...reminder, repetitions };
+        return { ...reminder, repetitions, repetitionsErrMsg: msg };
       }),
     };
   }
 
   if (action.type === UPDATE_EDITOR_REMINDER_INTERVAL) {
-    const { interval, key } = action.payload;
+    const { interval, msg, key } = action.payload;
     return {
       ...state,
       reminders: state.reminders.map(reminder => {
         if (reminder.key !== key) return reminder;
-        return { ...reminder, interval };
+        return { ...reminder, interval, intervalErrMsg: msg };
       }),
     };
   }
@@ -138,10 +183,6 @@ const editorReducer = (state = initialState, action) => {
         return { ...reminder, isMoreOptionsShown: isShown };
       }),
     };
-  }
-
-  if (action.type === UPDATE_EDITOR_DURATION_ERR_MSG) {
-    return { ...state, durationErrMsg: action.payload };
   }
 
   if (action.type === ADD_EDITOR_REMINDER) {

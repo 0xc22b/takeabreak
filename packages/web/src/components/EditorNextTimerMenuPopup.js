@@ -21,7 +21,7 @@ const EditorNextTimerMenuPopup = () => {
   const anchorPosition = useSelector(
     state => state.display.editorNextTimerMenuPopupPosition
   );
-  const nextTimers = useSelector(state => getNextTimers(state, state));
+  const nextTimers = useSelector(state => getNextTimers(state));
   const popup = useRef(null);
   const cancelBtn = useRef(null);
   const dispatch = useDispatch();
