@@ -1,3 +1,6 @@
+import { loop, Cmd } from 'redux-loop';
+
+import { fireReminders } from '../actions';
 import {
   UPDATE_POPUP, UPDATE_TOOLTIP, UPDATE_RUNNING_TIMER_ID, UPDATE_RUNNING_FLAG,
   DECREASE_RUNNING_DURATION, UPDATE_SELECTING_TIMER_ID,
@@ -149,7 +152,10 @@ const displayReducer = (state = initialState, action) => {
 
   if (action.type === DECREASE_RUNNING_DURATION) {
     const duration = state.runningDuration - action.payload;
-    if (duration <= 0) return { ...state, runningFlag: TIMED_UP, runningDuration: 0 };
+    if (duration <= 0) return loop(
+      { ...state, runningFlag: TIMED_UP, runningDuration: 0 },
+      Cmd.run(fireReminders(0), { args: [Cmd.dispatch, Cmd.getState] })
+    );
     return { ...state, runningDuration: duration };
   }
 

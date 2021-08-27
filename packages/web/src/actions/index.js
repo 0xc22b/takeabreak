@@ -19,8 +19,9 @@ import {
 import {
   TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, EDITOR_REMINDER_MENU_POPUP,
   CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP,
-  MESSAGE_KEY, MESSAGE_DISPLAY_DURATION_KEY, DEFAULT, CUSTOM,
+  MESSAGE_KEY, MESSAGE_DISPLAY_DURATION_KEY, DEFAULT, CUSTOM, AUTO,
 } from '../types/const';
+import { SOUNDS } from '../types/soundPaths';
 import { defaultEditorState } from "../types/defaultStates";
 import { throttle, urlHashToObj, objToUrlHash, getMMSS } from '../utils';
 
@@ -551,6 +552,102 @@ export const saveTimer = () => async (dispatch, getState) => {
   else dispatch({ type: ADD_TIMER, payload: { timer, reminders: timerReminders } })
 
   updatePopupUrlHash(EDITOR_POPUP, false, null);
+};
+
+let prevFireIndex = -1;
+let reminderTimeoutId = null;
+let soundIntervalId = null;
+export const fireReminders = (fireIndex) => async (dispatch, getState) => {
+  if (fireIndex === prevFireIndex) console.warn(`Got same fireIndex: ${fireIndex}`);
+
+  const { runningTimerId } = getState().display;
+  const {
+    reminderMessage, reminderMessageDisplayDuration, reminderSound,
+    reminders: reminderIds, nextTimerId, nextTimerStartsBy,
+  } = getState().timers.byId[runningTimerId];
+  const reminders = reminderIds.map(id => getState().timerReminders.byId[id]);
+  const reminder = reminders[fireIndex]
+
+  // Play sound
+  const _reps = reminder.repetitions;
+  if (_reps > 0) {
+    const _sound = reminder.sound === null ? reminderSound : reminder.sound;
+    const sound = SOUNDS.find(sound => sound.name === _sound);
+    if (sound) {
+      let count = 0;
+
+      const audio = new Audio(sound.path);
+      audio.addEventListener("canplaythrough", () => audio.play());
+      count += 1;
+
+      if (count < _reps) {
+        if (soundIntervalId) {
+          console.warn('Needed to clear previous active sound interval!');
+          clearInterval(soundIntervalId);
+        }
+        soundIntervalId = setInterval(() => {
+          const audio = new Audio(sound.path);
+          audio.addEventListener("canplaythrough", () => audio.play());
+          count += 1;
+          if (count === _reps) {
+            clearInterval(soundIntervalId);
+            soundIntervalId = null;
+          }
+        }, sound.interval * 1000);
+      }
+    }
+  }
+
+  // Send notification
+  const _msg = reminder.message === null ? reminderMessage : reminder.message;
+  let _dur = reminderMessageDisplayDuration;
+  if (reminder.messageDisplayDuration !== null) _dur = reminder.messageDisplayDuration;
+  if (_dur > 0) {
+    console.log(`Send notification with msg: ${_msg}`);
+  }
+
+  // Fire next reminder
+  if (fireIndex < reminders.length - 1) {
+    const _interval = reminders[fireIndex + 1].interval;
+    if (reminderTimeoutId) {
+      console.warn('Needed to clear previous active reminder timeout!');
+      clearTimeout(reminderTimeoutId);
+    }
+    reminderTimeoutId = setTimeout(() => {
+      reminderTimeoutId = null;
+      dispatch(fireReminders(fireIndex + 1));
+    }, _interval * 1000);
+
+    prevFireIndex = fireIndex;
+    return;
+  }
+
+  prevFireIndex = -1;
+  dispatch(updateRunningTimerId(null));
+
+  // Last reminder, check nextTimerId and nextTimerStartsBy
+  if (nextTimerId && nextTimerStartsBy === AUTO) {
+    dispatch(updateRunningTimerId(nextTimerId));
+  }
+};
+
+export const stopFireReminders = () => async (dispatch, getState) => {
+  clearTimeout(reminderTimeoutId);
+  reminderTimeoutId = null;
+
+  clearInterval(soundIntervalId);
+  soundIntervalId = null;
+
+  prevFireIndex = -1;
+  dispatch(updateRunningTimerId(null));
+};
+
+export const runNextTimer = () => async (dispatch, getState) => {
+  const { runningTimerId } = getState().display;
+  const { nextTimerId } = getState().timers.byId[runningTimerId];
+
+  dispatch(stopFireReminders());
+  dispatch(updateRunningTimerId(nextTimerId));
 };
 
 export const importData = () => async (dispatch, getState) => {

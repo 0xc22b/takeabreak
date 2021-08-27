@@ -34,5 +34,11 @@ export const ID = 'id';
 export const DEFAULT = 'Default';
 export const CUSTOM = 'Custom';
 
+export const NONE = 'None';
+export const AUTO = 'Auto';
+export const MANUAL = 'Manual';
+
+export const NO_SOUND = 'No sound';
+
 export const MESSAGE_KEY = 'Message';
 export const MESSAGE_DISPLAY_DURATION_KEY = 'MessageDisplayDuration';

@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 
 import {
   updatePopupUrlHash, updateRunningTimerId, updateRunningFlag, updateSelectingTimerId,
+  stopFireReminders, runNextTimer,
 } from '../actions';
 import {
-  TIMER_ITEM_MENU_POPUP, INIT, RUNNING, PAUSED, TIMED_UP, DISABLED,
+  TIMER_ITEM_MENU_POPUP, INIT, RUNNING, PAUSED, TIMED_UP, DISABLED, NONE,
 } from '../types/const';
 import { makeGetTimerState } from '../selectors';
 
@@ -27,7 +28,7 @@ const TimerItem = (props) => {
   };
 
   const onStopBtnClick = () => {
-    dispatch(updateRunningTimerId(null));
+    dispatch(stopFireReminders());
   };
 
   const onPauseBtnClick = () => {
@@ -43,7 +44,7 @@ const TimerItem = (props) => {
   };
 
   const onNextBtnClick = () => {
-
+    dispatch(runNextTimer());
   };
 
   const onMenuBtnClick = () => {
@@ -64,7 +65,7 @@ const TimerItem = (props) => {
       </td>
       <td className="text-right">
         <div className="w-full h-full flex items-center justify-end">
-          {(timerState === TIMED_UP && timer.nextTimerId) && <button onClick={onNextBtnClick} type="button" className="bg-white mx-1 py-1.5 px-5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Next</button>}
+          {(timerState === TIMED_UP && timer.nextTimerId !== NONE) && <button onClick={onNextBtnClick} type="button" className="bg-white mx-1 py-1.5 px-5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Next</button>}
           {timerState === PAUSED && <button onClick={onContinueBtnClick} type="button" className="bg-white mx-1 py-1.5 px-5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Continue</button>}
           {timerState === RUNNING && <button onClick={onPauseBtnClick} type="button" className="bg-white mx-1 py-1.5 px-5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Pause</button>}
           {timerState === PAUSED && <button onClick={onResetBtnClick} type="button" className="bg-white mx-1 py-1.5 px-5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Reset</button>}

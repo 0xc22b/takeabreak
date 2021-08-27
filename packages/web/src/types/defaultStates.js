@@ -1,4 +1,4 @@
-import { DEFAULT } from './const';
+import { DEFAULT, NONE, AUTO } from './const';
 
 export const defaultTimersState = {
   byId: {
@@ -10,8 +10,8 @@ export const defaultTimersState = {
       reminderMessageDisplayDuration: 10, // seconds
       reminderSound: 'Complete',
       reminders: ['r1629186381739'],
-      nextTimerId: 'None',
-      nextTimerStartsBy: 'Auto',
+      nextTimerId: NONE,
+      nextTimerStartsBy: AUTO,
     },
     't1629185891083': {
       id: 't1629185891083',
@@ -21,8 +21,8 @@ export const defaultTimersState = {
       reminderMessageDisplayDuration: 10,
       reminderSound: 'Complete',
       reminders: ['r1629186403698'],
-      nextTimerId: 'None',
-      nextTimerStartsBy: 'Auto',
+      nextTimerId: NONE,
+      nextTimerStartsBy: AUTO,
     }
   },
   ids: ['t1629185871053', 't1629185891083'],
@@ -68,8 +68,8 @@ export const defaultEditorState = {
       sound: DEFAULT,
     },
   ],
-  nextTimerId: 'None',
-  nextTimerStartsBy: 'Auto',
+  nextTimerId: NONE,
+  nextTimerStartsBy: AUTO,
 };
 
 export const defaultEditorReminderState = {

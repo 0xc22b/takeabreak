@@ -19,6 +19,11 @@ const TimerItemDuration = (props) => {
 
   useEffect(() => {
     if (timerState === RUNNING) {
+      if (intervalId.current) {
+        console.log(`TimerItemDuration: duplicate setInterval calls!`);
+        return;
+      }
+
       dispatch(decreaseRunningDuration());
       intervalId.current = setInterval(() => {
         dispatch(decreaseRunningDuration());

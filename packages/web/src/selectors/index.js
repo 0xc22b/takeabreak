@@ -1,6 +1,8 @@
 import { createSelector } from 'reselect';
 
-import { INIT, RUNNING, PAUSED, TIMED_UP, DISABLED, DEFAULT } from '../types/const';
+import {
+  INIT, RUNNING, PAUSED, TIMED_UP, DISABLED, DEFAULT, NONE, NO_SOUND,
+} from '../types/const';
 import { SOUNDS } from '../types/soundPaths';
 
 /** @return {function(any, any, any): any} */
@@ -52,7 +54,7 @@ export const getSounds = createSelector(
   (key) => {
     const sounds = [];
     if (key) sounds.push({ name: DEFAULT, path: null });
-    sounds.push({ name: 'No sound', path: null });
+    sounds.push({ name: NO_SOUND, path: null });
     return [...sounds, ...SOUNDS];
   }
 );
@@ -67,7 +69,7 @@ export const getNextTimers = createSelector(
         .filter(timer => timer.id !== id)
         .map(timer => ({ id: timer.id, name: timer.name }));
     }
-    return [{ id: 'None', name: 'None' }, ...nextTimers];
+    return [{ id: NONE, name: NONE }, ...nextTimers];
   }
 );
 
@@ -79,6 +81,6 @@ export const getNextTimerName = createSelector(
       const timer = Object.values(timers).find(timer => timer.id === nextTimerId);
       if (timer) return timer.name;
     }
-    return 'None';
+    return NONE;
   }
 );
