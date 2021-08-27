@@ -1,5 +1,5 @@
 import {
-  INIT, ADD_TIMER, EDIT_TIMER, DELETE_TIMER, RESET_DATA,
+  INIT, ADD_TIMER, EDIT_TIMER, DELETE_TIMER, IMPORT_DATA, RESET_DATA,
 } from '../types/actionTypes';
 import { ID } from '../types/const';
 import { defaultTimerRemindersState } from '../types/defaultStates';
@@ -11,7 +11,7 @@ const timerRemindersReducer = (state = { byId: null }, action) => {
     const { loadedState } = action.payload;
     if (loadedState && loadedState.timerReminders) return loadedState.timerReminders;
 
-    return defaultTimerRemindersState;
+    return { ...defaultTimerRemindersState };
   }
 
   if (action.type === ADD_TIMER || action.type === EDIT_TIMER) {
@@ -30,8 +30,13 @@ const timerRemindersReducer = (state = { byId: null }, action) => {
     return newState;
   }
 
+  if (action.type === IMPORT_DATA) {
+    const { timerReminders } = action.payload;
+    return { ...timerReminders };
+  }
+
   if (action.type === RESET_DATA) {
-    return defaultTimerRemindersState;
+    return { ...defaultTimerRemindersState };
   }
 
   return state;

@@ -1,5 +1,6 @@
 import { load as loadRedux } from "redux-localstorage-simple";
 import Url from 'url-parse';
+import { saveAs } from 'file-saver';
 
 import {
   INIT, UPDATE_WINDOW_SIZE, UPDATE_POPUP, UPDATE_TOOLTIP,
@@ -14,7 +15,7 @@ import {
   ADD_TIMER, EDIT_TIMER, DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
   ADD_EDITOR_REMINDER, DELETE_EDITOR_REMINDER,
   MOVE_EDITOR_REMINDER_UP, MOVE_EDITOR_REMINDER_DOWN,
-  RESET_DATA,
+  IMPORT_DATA, RESET_DATA,
 } from '../types/actionTypes';
 import {
   TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, EDITOR_REMINDER_MENU_POPUP,
@@ -652,10 +653,45 @@ export const runNextTimer = () => async (dispatch, getState) => {
 
 export const importData = () => async (dispatch, getState) => {
 
+  const onError = () => {
+    window.alert('Import failed: could not parse content in the file. Please recheck your file.');
+  };
+
+  const onReaderLoad = (e) => {
+    const text = e.target.result;
+    try {
+      const state = JSON.parse(text);
+      if (!state || !state.timers || !state.timerReminders) {
+        onError();
+        return;
+      }
+
+      dispatch({ type: IMPORT_DATA, payload: state });
+    } catch (e) {
+      onError();
+    }
+  };
+
+  const onInputChange = () => {
+    if (input.files) {
+      const reader = new FileReader();
+      reader.onload = onReaderLoad;
+      reader.onerror = onError;
+      reader.readAsText(input.files[0]);
+    }
+  };
+
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.txt, .json';
+  input.addEventListener('change', onInputChange);
+  input.click();
 };
 
 export const exportData = () => async (dispatch, getState) => {
-
+  const data = getState();
+  var blob = new Blob([JSON.stringify(data)], { type: "text/plain;charset=utf-8" });
+  saveAs(blob, "takeabreak-data.txt");
 };
 
 export const resetData = () => {

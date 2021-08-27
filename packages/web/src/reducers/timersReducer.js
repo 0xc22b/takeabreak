@@ -1,6 +1,6 @@
 import {
   INIT, ADD_TIMER, EDIT_TIMER, DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
-  RESET_DATA,
+  IMPORT_DATA, RESET_DATA,
 } from '../types/actionTypes';
 import { ID } from '../types/const';
 import { defaultTimersState } from '../types/defaultStates';
@@ -13,7 +13,7 @@ const timersReducer = (state = { byId: null, ids: null }, action) => {
     const { loadedState } = action.payload;
     if (loadedState && loadedState.timers) return loadedState.timers;
 
-    return defaultTimersState;
+    return { ...defaultTimersState };
   }
 
   if (action.type === ADD_TIMER) {
@@ -68,8 +68,13 @@ const timersReducer = (state = { byId: null, ids: null }, action) => {
     return newState;
   }
 
+  if (action.type === IMPORT_DATA) {
+    const { timers } = action.payload;
+    return { ...timers };
+  }
+
   if (action.type === RESET_DATA) {
-    return defaultTimersState;
+    return { ...defaultTimersState };
   }
 
   return state;

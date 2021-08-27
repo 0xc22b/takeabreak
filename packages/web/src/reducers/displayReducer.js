@@ -3,7 +3,7 @@ import { loop, Cmd } from 'redux-loop';
 import { fireReminders } from '../actions';
 import {
   UPDATE_POPUP, UPDATE_TOOLTIP, UPDATE_RUNNING_TIMER_ID, UPDATE_RUNNING_FLAG,
-  DECREASE_RUNNING_DURATION, UPDATE_SELECTING_TIMER_ID,
+  DECREASE_RUNNING_DURATION, UPDATE_SELECTING_TIMER_ID, IMPORT_DATA, RESET_DATA,
 } from '../types/actionTypes';
 import {
   TOP_BAR_MENU_POPUP, TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, EDITOR_REMINDER_MENU_POPUP,
@@ -161,6 +161,10 @@ const displayReducer = (state = initialState, action) => {
 
   if (action.type === UPDATE_SELECTING_TIMER_ID) {
     return { ...state, selectingTimerId: action.payload };
+  }
+
+  if (action.type === IMPORT_DATA || action.type === RESET_DATA) {
+    return { ...initialState };
   }
 
   return state;
