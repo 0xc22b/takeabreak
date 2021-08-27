@@ -22,7 +22,7 @@ import {
   MESSAGE_KEY, MESSAGE_DISPLAY_DURATION_KEY, DEFAULT, CUSTOM,
 } from '../types/const';
 import { defaultEditorState } from "../types/defaultStates";
-import { throttle, urlHashToObj, objToUrlHash } from '../utils';
+import { throttle, urlHashToObj, objToUrlHash, getMMSS } from '../utils';
 
 export const init = () => async (dispatch, getState) => {
 
@@ -252,10 +252,7 @@ export const showEditor = (isNew) => async (dispatch, getState) => {
     const timerId = getState().display.selectingTimerId;
     const timer = getState().timers.byId[timerId];
 
-    const mm = Math.floor(timer.duration / 60);
-    const ss = timer.duration % 60;
-
-    editorState = { ...timer, duration: `${mm}:${ss}` };
+    editorState = { ...timer, duration: getMMSS(timer.duration) };
     editorState.reminders = editorState.reminders.map(id => {
       const reminder = getState().timerReminders.byId[id]
 

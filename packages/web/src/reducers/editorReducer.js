@@ -39,7 +39,7 @@ const editorReducer = (state = initialState, action) => {
       selectingReminderKey: null,
       durationErrMsg: null,
       reminderMessageDisplayDurationErrMsg: null,
-      didReminderMessageTouch: false,
+      didReminderMessageTouch: action.payload.id === null ? false : true,
     };
     newState.reminders = newState.reminders.map(reminder => {
       return {
