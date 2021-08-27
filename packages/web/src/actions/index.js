@@ -11,7 +11,7 @@ import {
   UPDATE_EDITOR_REMINDER_REPETITIONS, UPDATE_EDITOR_REMINDER_INTERVAL,
   UPDATE_EDITOR_NEXT_TIMER_ID, UPDATE_EDITOR_NEXT_TIMER_STARTS_BY,
   UPDATE_EDITOR_SELECTING_REMINDER_KEY, UPDATE_EDITOR_REMINDER_IS_MORE_OPTIONS_SHOWN,
-  DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
+  ADD_TIMER, EDIT_TIMER, DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
   ADD_EDITOR_REMINDER, DELETE_EDITOR_REMINDER,
   MOVE_EDITOR_REMINDER_UP, MOVE_EDITOR_REMINDER_DOWN,
   RESET_DATA,
@@ -19,7 +19,7 @@ import {
 import {
   TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, EDITOR_REMINDER_MENU_POPUP,
   CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP,
-  MESSAGE_KEY, MESSAGE_DISPLAY_DURATION_KEY,
+  MESSAGE_KEY, MESSAGE_DISPLAY_DURATION_KEY, DEFAULT, CUSTOM,
 } from '../types/const';
 import { defaultEditorState } from "../types/defaultStates";
 import { throttle, urlHashToObj, objToUrlHash } from '../utils';
@@ -252,9 +252,35 @@ export const showEditor = (isNew) => async (dispatch, getState) => {
     const timerId = getState().display.selectingTimerId;
     const timer = getState().timers.byId[timerId];
 
-    editorState = { ...timer };
+    const mm = Math.floor(timer.duration / 60);
+    const ss = timer.duration % 60;
+
+    editorState = { ...timer, duration: `${mm}:${ss}` };
     editorState.reminders = editorState.reminders.map(id => {
-      return getState().timerReminders.byId[id];
+      const reminder = getState().timerReminders.byId[id]
+
+      let rMesage = DEFAULT, rCustomMessage = '';
+      if (reminder.message !== null) {
+        rMesage = CUSTOM;
+        rCustomMessage = reminder.message;
+      }
+
+      let rMessageDisplayDuration = DEFAULT, rCustomMessageDisplayDuration = '';
+      if (reminder.messageDisplayDuration !== null) {
+        rMessageDisplayDuration = CUSTOM;
+        rCustomMessageDisplayDuration = reminder.messageDisplayDuration;
+      }
+
+      let rSound = DEFAULT;
+      if (reminder.sound !== null) {
+        rSound = reminder.sound
+      }
+
+      return {
+        ...reminder, message: rMesage, customMessage: rCustomMessage,
+        messageDisplayDuration: rMessageDisplayDuration,
+        customMessageDisplayDuration: rCustomMessageDisplayDuration, sound: rSound,
+      };
     });
   }
 
@@ -416,8 +442,9 @@ export const confirmDelete = () => async (dispatch, getState) => {
 
   isShown = getState().display.isTimerItemMenuPopupShown;
   if (isShown) {
-    const id = getState().display.selectingTimerId;
-    dispatch({ type: DELETE_TIMER, payload: id });
+    const timerId = getState().display.selectingTimerId;
+    const reminderIds = getState().timers.byId[timerId].reminders;
+    dispatch({ type: DELETE_TIMER, payload: { timerId, reminderIds } });
     updatePopupUrlHash(TIMER_ITEM_MENU_POPUP, false, null);
     return;
   }
@@ -435,6 +462,98 @@ export const confirmDelete = () => async (dispatch, getState) => {
 
 export const saveTimer = () => async (dispatch, getState) => {
 
+  const {
+    id, name, duration, reminderMessage, reminderMessageDisplayDuration, reminderSound,
+    reminders, nextTimerId, nextTimerStartsBy,
+  } = getState().editor;
+
+  // validation
+  if (!/^[0-9]+:[0-9]+$/.test(duration)) {
+    const msg = 'Please fill in a number of minutes, then \':\' and a number of seconds i.e. 07:28';
+    dispatch({ type: UPDATE_EDITOR_DURATION, payload: { duration, msg } });
+    return;
+  }
+  if (!/^[0-9]+$/.test(reminderMessageDisplayDuration)) {
+    const msg = 'Please fill in a number i.e. 10';
+    dispatch({
+      type: UPDATE_EDITOR_REMINDER_MESSAGE_DISPLAY_DURATION,
+      payload: { duration: reminderMessageDisplayDuration, msg },
+    });
+    return;
+  }
+
+  let hasInvalid = false;
+  for (const reminder of reminders) {
+    if (!/^[0-9]+$/.test(reminder.repetitions)) {
+      const msg = 'Please fill in a number i.e. 2';
+      dispatch({
+        type: UPDATE_EDITOR_REMINDER_REPETITIONS,
+        payload: { repetitions: reminder.repetitions, msg, key: reminder.key },
+      });
+      hasInvalid = true;
+    }
+    if (!/^[0-9]+$/.test(reminder.interval)) {
+      const msg = 'Please fill in a number i.e. 2';
+      dispatch({
+        type: UPDATE_EDITOR_REMINDER_INTERVAL,
+        payload: { interval: reminder.interval, msg, key: reminder.key },
+      });
+      hasInvalid = true;
+    }
+    if (reminder.messageDisplayDuration !== DEFAULT) {
+      if (!/^[0-9]+$/.test(reminder.customMessageDisplayDuration)) {
+        const msg = 'Please fill in a number i.e. 10';
+        dispatch({
+          type: UPDATE_EDITOR_REMINDER_CUSTOM_MESSAGE_DISPLAY_DURATION,
+          payload: {
+            duration: reminder.customMessageDisplayDuration, msg, key: reminder.key,
+          },
+        });
+        hasInvalid = true;
+      }
+    }
+  }
+  if (hasInvalid) return;
+
+  // convert to timerState and reminderState
+  let now = Date.now();
+  const tId = id ? id : `t${now++}`;
+
+  const [mm, ss] = duration.split(':');
+  const tDuration = parseInt(mm, 10) * 60 + parseInt(ss, 10);
+  const tReminderMessageDisplayDuration = parseInt(reminderMessageDisplayDuration, 10);
+
+  const timerReminders = reminders.map(reminder => {
+    const rId = reminder.id ? reminder.id : `r${now++}`;
+    const rRepetitions = parseInt(reminder.repetitions, 10);
+    const rInterval = parseInt(reminder.interval, 10);
+    const rMessage = reminder.message === DEFAULT ? null : reminder.customMessage;
+
+    let rMessageDisplayDuration = null;
+    if (reminder.messageDisplayDuration !== DEFAULT) {
+      rMessageDisplayDuration = reminder.customMessageDisplayDuration;
+    }
+
+    const rSound = reminder.sound === DEFAULT ? null : reminder.sound;
+
+    return {
+      id: rId, repetitions: rRepetitions, interval: rInterval, message: rMessage,
+      messageDisplayDuration: rMessageDisplayDuration, sound: rSound,
+    };
+  });
+  const tReminders = timerReminders.map(reminder => reminder.id);
+
+  const timer = {
+    id: tId, name, duration: tDuration, reminderMessage,
+    reminderMessageDisplayDuration: tReminderMessageDisplayDuration,
+    reminderSound, reminders: tReminders, nextTimerId, nextTimerStartsBy,
+  };
+
+  // Dispatch to add a new Timer or edit an existing timer
+  if (id) dispatch({ type: EDIT_TIMER, payload: { timer, reminders: timerReminders } })
+  else dispatch({ type: ADD_TIMER, payload: { timer, reminders: timerReminders } })
+
+  updatePopupUrlHash(EDITOR_POPUP, false, null);
 };
 
 export const importData = () => async (dispatch, getState) => {

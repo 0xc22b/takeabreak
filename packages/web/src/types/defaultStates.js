@@ -54,7 +54,7 @@ export const defaultEditorState = {
   name: '',
   duration: '',
   reminderMessage: '',
-  reminderMessageDisplayDuration: '10',
+  reminderMessageDisplayDuration: 10,
   reminderSound: 'Complete',
   reminders: [
     {

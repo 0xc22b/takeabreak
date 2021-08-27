@@ -1,4 +1,17 @@
 /**
+ * Convert an array of objects to an object of objects.
+ **/
+const mapKeys = (arr, key) => {
+  if (!Array.isArray(arr)) throw new Error(`Must be arr: ${arr}`);
+
+  const obj = {};
+  for (const el of arr) {
+    obj[el[key]] = el;
+  }
+  return obj;
+};
+
+/**
  * Exclude objects in an object that meets the criteria.
  **/
 const exclude = (obj, key, value) => {
@@ -23,4 +36,4 @@ const exclude = (obj, key, value) => {
   return newObj;
 };
 
-export const _ = { exclude };
+export const _ = { mapKeys, exclude };

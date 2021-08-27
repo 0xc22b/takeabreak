@@ -98,8 +98,8 @@ const EditorForm = () => {
 
   const onSaveBtnClick = () => {
     if (didClick.current) return;
-    dispatch(saveTimer());
     didClick.current = setTimeout(() => didClick.current = null, 500);
+    dispatch(saveTimer());
   };
 
   useEffect(() => {

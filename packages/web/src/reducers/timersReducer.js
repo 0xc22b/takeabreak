@@ -1,5 +1,5 @@
 import {
-  INIT, DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
+  INIT, ADD_TIMER, EDIT_TIMER, DELETE_TIMER, MOVE_TIMER_UP, MOVE_TIMER_DOWN,
   RESET_DATA,
 } from '../types/actionTypes';
 import { ID } from '../types/const';
@@ -16,11 +16,26 @@ const timersReducer = (state = { byId: null, ids: null }, action) => {
     return defaultTimersState;
   }
 
-  if (action.type === DELETE_TIMER) {
-    const id = action.payload;
+  if (action.type === ADD_TIMER) {
+    const { timer } = action.payload;
     const newState = { ...state };
-    newState.byId = _.exclude(newState.byId, ID, id);
-    newState.ids = newState.ids.filter(_id => _id !== id);
+    newState.byId = { ...newState.byId, [timer.id]: timer };
+    newState.ids = [...newState.ids, timer.id];
+    return newState;
+  }
+
+  if (action.type === EDIT_TIMER) {
+    const { timer } = action.payload;
+    const newState = { ...state };
+    newState.byId = { ...newState.byId, [timer.id]: timer };
+    return newState;
+  }
+
+  if (action.type === DELETE_TIMER) {
+    const { timerId } = action.payload;
+    const newState = { ...state };
+    newState.byId = _.exclude(newState.byId, ID, timerId);
+    newState.ids = newState.ids.filter(_id => _id !== timerId);
     return newState;
   }
 

@@ -194,6 +194,9 @@ const editorReducer = (state = initialState, action) => {
           ...defaultEditorReminderState,
           key: `${randomString(6)}-${randomString(6)}`,
           isMoreOptionsShown: false,
+          repetitionsErrMsg: null,
+          intervalErrMsg: null,
+          messageDisplayDurationErrMsg: null,
         },
       ],
     }
