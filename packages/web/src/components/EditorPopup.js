@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { updatePopupUrlHash } from '../actions';
-import { EDITOR_POPUP } from '../types/const';
+import { hideEditor } from '../actions';
 import { popupBgFMV, popupFMV } from '../types/animConfigs';
 
 import { useSafeAreaFrame } from '.';
@@ -15,9 +14,10 @@ const EditorPopup = () => {
   const isShown = useSelector(state => state.display.isEditorPopupShown);
   const isMoreSettingsShown = useSelector(state => state.editor.isMoreSettingsShown);
   const cancelBtn = useRef(null);
+  const dispatch = useDispatch();
 
   const onCancelBtnClick = () => {
-    updatePopupUrlHash(EDITOR_POPUP, false, null);
+    dispatch(hideEditor(true));
   };
 
   useEffect(() => {
@@ -48,9 +48,16 @@ const EditorPopup = () => {
           <div className="fixed inset-0">
             <motion.button ref={cancelBtn} onClick={onCancelBtnClick} className="absolute inset-0 w-full h-full bg-black bg-opacity-30 cursor-default focus:outline-none" variants={popupBgFMV} initial="hidden" animate="visible" exit="hidden" />
           </div>
-          <motion.div className="relative w-full max-w-2xl px-4 sm:px-6" style={{ marginTop: panelMarginTop }} variants={popupFMV} initial="hidden" animate="visible" exit="hidden" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-            <div className="bg-white rounded-lg shadow-xl overflow-x-hidden overflow-y-auto" style={panelStyle}>
+          <motion.div className="w-full max-w-2xl px-4 sm:px-6" style={{ marginTop: panelMarginTop }} variants={popupFMV} initial="hidden" animate="visible" exit="hidden" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+            <div className="bg-white rounded-lg shadow-xl relative overflow-x-hidden overflow-y-auto" style={panelStyle}>
               <EditorForm />
+              <div className="absolute top-0 right-0 p-1">
+                <button onClick={onCancelBtnClick} className="flex items-center justify-center h-7 w-7 group focus:outline-none" aria-label="Close settings popup">
+                  <svg className="h-5 w-5 text-gray-400 rounded group-hover:text-gray-500 group-focus:ring-2 group-focus:ring-gray-400" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>

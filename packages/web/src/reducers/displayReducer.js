@@ -9,8 +9,8 @@ import {
   TOP_BAR_MENU_POPUP, TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, EDITOR_REMINDER_MENU_POPUP,
   EDITOR_REMINDER_SOUND_MENU_POPUP, EDITOR_NEXT_TIMER_MENU_POPUP,
   EDITOR_NEXT_TIMER_STARTS_BY_MENU_POPUP, EDITOR_DEFAULT_MENU_POPUP,
-  CONFIRM_DELETE_POPUP, EDITOR_REPETITIONS_TOOLTIP, EDITOR_INTERVAL_TOOLTIP,
-  TIMED_UP,
+  EDITOR_REPETITIONS_TOOLTIP, EDITOR_INTERVAL_TOOLTIP,
+  CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP, TIMED_UP,
 } from '../types/const';
 
 const initialState = {
@@ -29,11 +29,12 @@ const initialState = {
   editorNextTimerStartsByMenuPopupPosition: null,
   isEditorDefaultMenuPopupShown: false,
   editorDefaultMenuPopupPosition: null,
-  isConfirmDeletePopupShown: false,
   isEditorRepetitionsTooltipShown: false,
   editorRepetitionsTooltipPosition: null,
   isEditorIntervalTooltipShown: false,
   editorIntervalTooltipPosition: null,
+  isConfirmDeletePopupShown: false,
+  isConfirmDiscardPopupShown: false,
   runningTimerId: null,
   runningFlag: null,
   runningDuration: null, // seconds
@@ -108,6 +109,10 @@ const displayReducer = (state = initialState, action) => {
 
     if (id === CONFIRM_DELETE_POPUP) {
       return { ...state, isConfirmDeletePopupShown: isShown };
+    }
+
+    if (id === CONFIRM_DISCARD_POPUP) {
+      return { ...state, isConfirmDiscardPopupShown: isShown };
     }
 
     throw new Error(`Invalid type: ${action.type} and payload: ${action.payload}`);

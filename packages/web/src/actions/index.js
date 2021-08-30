@@ -24,7 +24,7 @@ import {
 } from '../types/const';
 import { SOUNDS } from '../types/soundPaths';
 import { defaultEditorState } from "../types/defaultStates";
-import { throttle, urlHashToObj, objToUrlHash, getMMSS } from '../utils';
+import { throttle, urlHashToObj, objToUrlHash, getMMSS, isEqual } from '../utils';
 
 export const init = () => async (dispatch, getState) => {
 
@@ -247,44 +247,86 @@ export const moveTimerDown = () => async (dispatch, getState) => {
   dispatch({ type: MOVE_TIMER_DOWN, payload: id });
 };
 
+const toEditorState = (timer, getState) => {
+  const editorState = { ...timer, duration: getMMSS(timer.duration) };
+  editorState.reminders = editorState.reminders.map(id => {
+    const reminder = getState().timerReminders.byId[id]
+
+    let rMesage = DEFAULT, rCustomMessage = '';
+    if (reminder.message !== null) {
+      rMesage = CUSTOM;
+      rCustomMessage = reminder.message;
+    }
+
+    let rMessageDisplayDuration = DEFAULT, rCustomMessageDisplayDuration = '';
+    if (reminder.messageDisplayDuration !== null) {
+      rMessageDisplayDuration = CUSTOM;
+      rCustomMessageDisplayDuration = reminder.messageDisplayDuration;
+    }
+
+    let rSound = DEFAULT;
+    if (reminder.sound !== null) {
+      rSound = reminder.sound
+    }
+
+    return {
+      ...reminder, message: rMesage, customMessage: rCustomMessage,
+      messageDisplayDuration: rMessageDisplayDuration,
+      customMessageDisplayDuration: rCustomMessageDisplayDuration, sound: rSound,
+    };
+  });
+  return editorState;
+};
+
 export const showEditor = (isNew) => async (dispatch, getState) => {
   let editorState;
   if (isNew) editorState = defaultEditorState;
   else {
     const timerId = getState().display.selectingTimerId;
     const timer = getState().timers.byId[timerId];
-
-    editorState = { ...timer, duration: getMMSS(timer.duration) };
-    editorState.reminders = editorState.reminders.map(id => {
-      const reminder = getState().timerReminders.byId[id]
-
-      let rMesage = DEFAULT, rCustomMessage = '';
-      if (reminder.message !== null) {
-        rMesage = CUSTOM;
-        rCustomMessage = reminder.message;
-      }
-
-      let rMessageDisplayDuration = DEFAULT, rCustomMessageDisplayDuration = '';
-      if (reminder.messageDisplayDuration !== null) {
-        rMessageDisplayDuration = CUSTOM;
-        rCustomMessageDisplayDuration = reminder.messageDisplayDuration;
-      }
-
-      let rSound = DEFAULT;
-      if (reminder.sound !== null) {
-        rSound = reminder.sound
-      }
-
-      return {
-        ...reminder, message: rMesage, customMessage: rCustomMessage,
-        messageDisplayDuration: rMessageDisplayDuration,
-        customMessageDisplayDuration: rCustomMessageDisplayDuration, sound: rSound,
-      };
-    });
+    editorState = toEditorState(timer, getState);
   }
 
   dispatch({ type: INIT_EDITOR, payload: editorState });
   updatePopupUrlHash(EDITOR_POPUP, true, null);
+};
+
+export const hideEditor = (doCheckEditing = false) => async (dispatch, getState) => {
+  if (!doCheckEditing) updatePopupUrlHash(EDITOR_POPUP, false, null);
+
+  const {
+    id, name, duration, reminderMessage, reminderMessageDisplayDuration, reminderSound,
+    reminders, nextTimerId, nextTimerStartsBy,
+  } = getState().editor;
+
+  const remindersState = reminders.map(reminder => {
+    return {
+      id: reminder.id,
+      repetitions: reminder.repetitions,
+      interval: reminder.interval,
+      message: reminder.message,
+      customMessage: reminder.customMessage,
+      messageDisplayDuration: reminder.messageDisplayDuration,
+      customMessageDisplayDuration: reminder.customMessageDisplayDuration,
+      sound: reminder.sound,
+    };
+  });
+
+  const editorState = {
+    id, name, duration, reminderMessage, reminderMessageDisplayDuration, reminderSound,
+    reminders: remindersState, nextTimerId, nextTimerStartsBy,
+  }
+
+  let didChange;
+  if (id === null) didChange = !isEqual(defaultEditorState, editorState);
+  else {
+    const timerId = getState().display.selectingTimerId;
+    const timer = getState().timers.byId[timerId];
+    didChange = !isEqual(toEditorState(timer, getState), editorState);
+  }
+
+  if (didChange) updatePopupUrlHash(CONFIRM_DISCARD_POPUP, true, null);
+  else updatePopupUrlHash(EDITOR_POPUP, false, null);
 };
 
 export const updateEditorIsMoreSettingsShown = (isShown) => {
