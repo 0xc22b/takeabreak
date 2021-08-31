@@ -15,7 +15,7 @@ const SupportUs = () => {
         <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-24 lg:px-8 lg:flex lg:items-center lg:justify-between">
           <div className="max-w-xl">
             <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Support us</h2>
-            <p className="mt-4 text-lg text-gray-500">Take a Break is totally free. If our timers are useful, please support us. We’re commited to maintain, fix bugs, improve, and add more features. Please help us make this website sustainable. Thank you.</p>
+            <p className="mt-4 text-lg text-gray-500">Take a Break is totally free. If our timers are useful, please support us. We’re committed to maintain, fix bugs, and add more features. Please help us make this website sustainable by supporting us on <a href="https://www.buymeacoffee.com/wit.th" className="text-gray-900 font-medium underline">Buy me a coffee</a>. Thank you.</p>
             <div className="mt-8">
               <div className="flex items-center justify-start">
                 <div className="flex-shrink-0">
