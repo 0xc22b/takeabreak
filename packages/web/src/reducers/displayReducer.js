@@ -159,7 +159,7 @@ const displayReducer = (state = initialState, action) => {
     const duration = state.runningDuration - action.payload;
     if (duration <= 0) return loop(
       { ...state, runningFlag: TIMED_UP, runningDuration: 0 },
-      Cmd.run(fireReminders(0), { args: [Cmd.dispatch, Cmd.getState] })
+      Cmd.run(fireReminders(), { args: [Cmd.dispatch, Cmd.getState] })
     );
     return { ...state, runningDuration: duration };
   }

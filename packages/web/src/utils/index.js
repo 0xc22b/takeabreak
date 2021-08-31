@@ -152,3 +152,17 @@ export const getMMSS = (seconds) => {
   const ss = String(seconds % 60).padStart(2, '0');
   return `${mm}:${ss}`;
 };
+
+export const isNotificationSupported = () => {
+  if (!window.Notification || !Notification.requestPermission) return false;
+  if (Notification.permission === 'granted') return true;
+  if (Notification.permission === 'denied') return false;
+
+  try {
+    new Notification('');
+  } catch (e) {
+    if (e.name === 'TypeError') return false;
+  }
+
+  return true
+};

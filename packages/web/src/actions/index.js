@@ -20,11 +20,15 @@ import {
 import {
   TIMER_ITEM_MENU_POPUP, EDITOR_POPUP, EDITOR_REMINDER_MENU_POPUP,
   CONFIRM_DELETE_POPUP, CONFIRM_DISCARD_POPUP,
-  MESSAGE_KEY, MESSAGE_DISPLAY_DURATION_KEY, DEFAULT, CUSTOM, AUTO,
+  MESSAGE_KEY, MESSAGE_DISPLAY_DURATION_KEY, DEFAULT, CUSTOM, NONE, AUTO,
 } from '../types/const';
 import { SOUNDS } from '../types/soundPaths';
 import { defaultEditorState } from "../types/defaultStates";
-import { throttle, urlHashToObj, objToUrlHash, getMMSS, isEqual } from '../utils';
+import {
+  throttle, urlHashToObj, objToUrlHash, getMMSS, isEqual, isNotificationSupported,
+} from '../utils';
+
+import logo from '../images/logo-short.svg';
 
 export const init = () => async (dispatch, getState) => {
 
@@ -60,6 +64,13 @@ export const init = () => async (dispatch, getState) => {
   window.addEventListener('beforeunload', (e) => {
     console.log('beforeunload is called.')
   }, { capture: true });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+      // The tab has become visible so clear the now-stale Notification.
+
+    }
+  });
 };
 
 export const handleUrlHash = () => {
@@ -598,9 +609,12 @@ export const saveTimer = () => async (dispatch, getState) => {
 };
 
 let prevFireIndex = -1;
+let didStopFire = false;
 let reminderTimeoutId = null;
 let soundIntervalId = null;
-export const fireReminders = (fireIndex) => async (dispatch, getState) => {
+let notification = null;
+let notiTimeoutId = null;
+const _fireReminders = async (fireIndex, dispatch, getState) => {
   if (fireIndex === prevFireIndex) console.warn(`Got same fireIndex: ${fireIndex}`);
 
   const { runningTimerId } = getState().display;
@@ -609,7 +623,7 @@ export const fireReminders = (fireIndex) => async (dispatch, getState) => {
     reminders: reminderIds, nextTimerId, nextTimerStartsBy,
   } = getState().timers.byId[runningTimerId];
   const reminders = reminderIds.map(id => getState().timerReminders.byId[id]);
-  const reminder = reminders[fireIndex]
+  const reminder = reminders[fireIndex];
 
   // Play sound
   const _reps = reminder.repetitions;
@@ -642,11 +656,50 @@ export const fireReminders = (fireIndex) => async (dispatch, getState) => {
   }
 
   // Send notification
-  const _msg = reminder.message === null ? reminderMessage : reminder.message;
   let _dur = reminderMessageDisplayDuration;
   if (reminder.messageDisplayDuration !== null) _dur = reminder.messageDisplayDuration;
-  if (_dur > 0) {
-    console.log(`Send notification with msg: ${_msg}`);
+  if (_dur > 0 && isNotificationSupported()) {
+    const titleMsg = reminder.message === null ? reminderMessage : reminder.message;
+
+    let bodyMsg = 'Just now.';
+    if (fireIndex > 0) {
+      let cumDur = 0;
+      for (let i = 1; i <= fireIndex; i++) cumDur += reminders[i].interval;
+
+      const mins = Math.floor(cumDur / 60);
+      const seconds = cumDur % 60;
+
+      bodyMsg = '';
+      if (mins > 0) bodyMsg += `${mins} minutes `;
+      if (seconds > 0) bodyMsg += `${seconds} seconds `;
+      bodyMsg += 'ago.';
+    }
+
+    if (Notification.permission === 'default') await Notification.requestPermission();
+
+    if (didStopFire) return;
+    if (Notification.permission === 'granted') {
+      if (notification) {
+        console.warn('Needed to clear previous active notification!');
+        notification.close();
+      }
+      if (notiTimeoutId) {
+        console.warn('Needed to clear previous active noti timeout!');
+        clearTimeout(notiTimeoutId);
+      }
+      notification = new Notification(titleMsg, {
+        icon: logo, body: bodyMsg, renotify: true, tag: 'TAKEABREAK_TIME_UP',
+        requireInteraction: true, silent: true,
+      });
+      notification.onclick = () => {
+        dispatch(stopFireReminders());
+      };
+      notiTimeoutId = setTimeout(() => {
+        if (notification) notification.close();
+        notification = null;
+        notiTimeoutId = null;
+      }, _dur * 1000);
+    }
   }
 
   // Fire next reminder
@@ -658,7 +711,7 @@ export const fireReminders = (fireIndex) => async (dispatch, getState) => {
     }
     reminderTimeoutId = setTimeout(() => {
       reminderTimeoutId = null;
-      dispatch(fireReminders(fireIndex + 1));
+      _fireReminders(fireIndex + 1, dispatch, getState);
     }, _interval * 1000);
 
     prevFireIndex = fireIndex;
@@ -666,12 +719,17 @@ export const fireReminders = (fireIndex) => async (dispatch, getState) => {
   }
 
   prevFireIndex = -1;
-  dispatch(updateRunningTimerId(null));
 
   // Last reminder, check nextTimerId and nextTimerStartsBy
-  if (nextTimerId && nextTimerStartsBy === AUTO) {
-    dispatch(updateRunningTimerId(nextTimerId));
+  if (nextTimerId !== NONE && nextTimerStartsBy === AUTO) {
+    dispatch(updateRunningTimerId(null));
+    setTimeout(() => dispatch(updateRunningTimerId(nextTimerId)), 100);
   }
+};
+
+export const fireReminders = () => async (dispatch, getState) => {
+  didStopFire = false;
+  _fireReminders(0, dispatch, getState);
 };
 
 export const stopFireReminders = () => async (dispatch, getState) => {
@@ -681,7 +739,14 @@ export const stopFireReminders = () => async (dispatch, getState) => {
   clearInterval(soundIntervalId);
   soundIntervalId = null;
 
+  clearTimeout(notiTimeoutId);
+  notiTimeoutId = null;
+
+  if (notification) notification.close();
+  notification = null;
+
   prevFireIndex = -1;
+  didStopFire = true;
   dispatch(updateRunningTimerId(null));
 };
 
