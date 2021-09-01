@@ -179,6 +179,14 @@
     unicode-bidi: bidi-override;
     direction: rtl;
   }
+
+  #bmc-wbtn:hover {
+    @apply bg-yellow-300 !important;
+  }
+
+  #bmc-wbtn[style="display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: rgb(253, 230, 138); color: white; border-radius: 32px; position: fixed; right: 16px; bottom: 16px; box-shadow: rgba(0, 0, 0, 0.4) 0px 4px 8px; z-index: 9999; cursor: pointer; font-weight: 600; transition: all 0.2s ease 0s; transform: scale(0.8);"] {
+    @apply bg-yellow-300 !important;
+  }
 }
 
 @layer utilities {

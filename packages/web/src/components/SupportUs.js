@@ -15,14 +15,14 @@ const SupportUs = () => {
         <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-24 lg:px-8 lg:flex lg:items-center lg:justify-between">
           <div className="max-w-xl">
             <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Support us</h2>
-            <p className="mt-4 text-lg text-gray-500">Take a Break is totally free. If our timers are useful, please support us. We’re committed to maintain, fix bugs, and add more features. Please help us make this website sustainable by supporting us on <a href="https://www.buymeacoffee.com/wit.th" className="text-gray-900 font-medium underline">Buy me a coffee</a>. Thank you.</p>
+            <p className="mt-4 text-lg text-gray-500">Take a Break is totally free. If our timers are useful, please support us. We’re committed to maintain, fix bugs, and add more features. Please help us make this website sustainable by supporting us on <a href="https://www.buymeacoffee.com/wit.th" className="text-gray-900 font-medium underline">Buy Me a Coffee</a>. Thank you.</p>
             <div className="mt-8">
               <div className="flex items-center justify-start">
                 <div className="flex-shrink-0">
                   <img className="mx-auto h-10 w-10 rounded-full" src={creator} alt="" />
                 </div>
                 <div className="text-center ml-4 flex items-center">
-                  <div className="text-base font-medium text-gray-900">Wit T.</div>
+                  <div className="text-base font-medium text-gray-900">Wit</div>
                   <svg className="mx-1 h-5 w-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M11 0h3L9 20H6l5-20z" />
                   </svg>
