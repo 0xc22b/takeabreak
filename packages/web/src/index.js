@@ -7,6 +7,7 @@ import { save as saveRedux } from "redux-localstorage-simple";
 
 import './stylesheets/tailwind.css';
 import './stylesheets/loading.css';
+import './stylesheets/buy-me-a-coffee.css';
 
 import reducers from './reducers';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';

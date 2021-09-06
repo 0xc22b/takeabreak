@@ -1,0 +1,4 @@
+#bmc-wbtn:hover,
+#bmc-wbtn[style*="scale(0.8)"] {
+  background-color: rgb(252, 211, 77) !important;
+}

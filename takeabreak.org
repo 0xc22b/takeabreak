@@ -121,4 +121,11 @@
 ** Server
 *** s3
 *** cloudfront
+*** Lambda function
+*** Certificate manager
 *** asw-cli
+* Server
+** test
+- https://d12binjainp0dp.cloudfront.net
+** production
+- https://takeabreak.cc
