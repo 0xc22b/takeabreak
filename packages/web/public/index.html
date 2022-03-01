@@ -46,6 +46,34 @@
     -->
     <title>Take a Break - Timers to help you take a break</title>
 
+    <script>
+      const isIPadIPhoneIPod = () => {
+        const ua = navigator.userAgent;
+        if (/iPad|iPhone|iPod/.test(ua)) {
+          return true;
+        }
+        if (/Mac OS X/.test(ua) && /Safari/.test(ua) && !/Chrome/.test(ua) && !/Firefox/.test(ua)) {
+          return true;
+        }
+        return false;
+      };
+
+      const addMaximumScaleToMetaViewport = () => {
+        const el = document.querySelector('meta[name=viewport]');
+        if (el !== null) {
+          let content = el.getAttribute('content');
+          const re = /maximum\-scale=[0-9\.]+/g;
+
+          if (re.test(content)) content = content.replace(re, 'maximum-scale=1.0');
+          else content = [content, 'maximum-scale=1.0'].join(', ');
+
+          el.setAttribute('content', content);
+        }
+      };
+
+      if (isIPadIPhoneIPod()) addMaximumScaleToMetaViewport();
+    </script>
+
     <!-- Buy me a coffee  -->
     <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="wit.th" data-description="Support us on Buy me a coffee!" data-message="" data-color="#FDE68A" data-position="Right" data-x_margin="16" data-y_margin="16"></script>
   </head>
